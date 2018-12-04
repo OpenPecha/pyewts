@@ -1,4 +1,4 @@
 import pyewts
 
-converter = pyewts()
+converter = pyewts.pyewts()
 converter.toUnicode("ba")
