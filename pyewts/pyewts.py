@@ -52,8 +52,7 @@ class pyewts(object):
     m_subscripts = None
     m_prefixes = None
     m_suff2 = None
-    base = [None] * 36
-    repl = [None] * 36
+    repls = []
 
     class Mode:
         WYLIE = u'WYLIE'
@@ -897,120 +896,41 @@ class pyewts(object):
 
     @classmethod
     def initSloppyRepl(cls):
-        i = 0
-        cls.base[i] = "ʼ"
-        cls.repl[i] = "'"
-        i += 1
-        #  0x02BC
-        cls.base[i] = "ʹ"
-        cls.repl[i] = "'"
-        i += 1
-        #  0x02B9
-        cls.base[i] = "‘"
-        cls.repl[i] = "'"
-        i += 1
-        #  0x2018
-        cls.base[i] = "’"
-        cls.repl[i] = "'"
-        i += 1
-        #  0x2019
-        cls.base[i] = "ʾ"
-        cls.repl[i] = "'"
-        i += 1
-        #  0x02BE
-        cls.base[i] = "x"
-        cls.repl[i] = "\\u0fbe"
-        i += 1
-        cls.base[i] = "X"
-        cls.repl[i] = "\\u0fbe"
-        i += 1
-        cls.base[i] = "..."
-        cls.repl[i] = "\\u0f0b\\u0f0b\\u0f0b"
-        i += 1
-        cls.base[i] = " ("
-        cls.repl[i] = "_("
-        i += 1
-        cls.base[i] = ") "
-        cls.repl[i] = ")_"
-        i += 1
-        cls.base[i] = "/ "
-        cls.repl[i] = "/_"
-        i += 1
-        cls.base[i] = " 0"
-        cls.repl[i] = "_0"
-        i += 1
-        cls.base[i] = " 1"
-        cls.repl[i] = "_1"
-        i += 1
-        cls.base[i] = " 2"
-        cls.repl[i] = "_2"
-        i += 1
-        cls.base[i] = " 3"
-        cls.repl[i] = "_3"
-        i += 1
-        cls.base[i] = " 4"
-        cls.repl[i] = "_4"
-        i += 1
-        cls.base[i] = " 5"
-        cls.repl[i] = "_5"
-        i += 1
-        cls.base[i] = " 6"
-        cls.repl[i] = "_6"
-        i += 1
-        cls.base[i] = " 7"
-        cls.repl[i] = "_7"
-        i += 1
-        cls.base[i] = " 8"
-        cls.repl[i] = "_8"
-        i += 1
-        cls.base[i] = " 9"
-        cls.repl[i] = "_9"
-        i += 1
-        cls.base[i] = "_ "
-        cls.repl[i] = "__"
-        i += 1
-        cls.base[i] = "G"
-        cls.repl[i] = "g"
-        i += 1
-        cls.base[i] = "K"
-        cls.repl[i] = "k"
-        i += 1
-        cls.base[i] = "G."
-        cls.repl[i] = "g."
-        i += 1
-        cls.base[i] = "C"
-        cls.repl[i] = "c"
-        i += 1
-        cls.base[i] = "B"
-        cls.repl[i] = "b"
-        i += 1
-        cls.base[i] = " b "
-        cls.repl[i] = " ba "
-        i += 1
-        cls.base[i] = " m "
-        cls.repl[i] = " ma "
-        i += 1
-        cls.base[i] = " m'i "
-        cls.repl[i] = " ma'i "
-        i += 1
-        cls.base[i] = " b'i "
-        cls.repl[i] = " ba'i "
-        i += 1
-        cls.base[i] = "P"
-        cls.repl[i] = "p"
-        i += 1
-        cls.base[i] = "L"
-        cls.repl[i] = "l"
-        i += 1
-        cls.base[i] = " M"
-        cls.repl[i] = " m"
-        i += 1
-        cls.base[i] = "(M"
-        cls.repl[i] = "(m"
-        i += 1
-        cls.base[i] = "Z"
-        cls.repl[i] = "z"
-        i += 1
+        cls.repls.append(("ʼ", "'"))
+        cls.repls.append(("ʹ", "'"))
+        cls.repls.append(("‘", "'"))
+        cls.repls.append(("’", "'"))
+        cls.repls.append(("ʾ", "'"))
+        cls.repls.append(("x", "\\u0fbe"))
+        cls.repls.append(("X", "\\u0fbe"))
+        cls.repls.append(("...", "\\u0f0b\\u0f0b\\u0f0b"))
+        cls.repls.append((" (", "_("))
+        cls.repls.append((") ", ")_"))
+        cls.repls.append(("/ ", "/_"))
+        cls.repls.append((" 0", "_0"))
+        cls.repls.append((" 1", "_1"))
+        cls.repls.append((" 2", "_2"))
+        cls.repls.append((" 3", "_3"))
+        cls.repls.append((" 4", "_4"))
+        cls.repls.append((" 5", "_5"))
+        cls.repls.append((" 6", "_6"))
+        cls.repls.append((" 7", "_7"))
+        cls.repls.append((" 8", "_8"))
+        cls.repls.append((" 9", "_9"))
+        cls.repls.append(("_ ", "__"))
+        cls.repls.append(("G", "g"))
+        cls.repls.append(("K", "k"))
+        cls.repls.append(("C", "c"))
+        cls.repls.append(("B", "b"))
+        cls.repls.append(("P", "p"))
+        cls.repls.append(("L", "l"))
+        cls.repls.append(("Z", "z"))
+        cls.repls.append((" b ", " ba "))
+        cls.repls.append((" b'i ", " ba'i "))
+        cls.repls.append((" m ", " ma "))
+        cls.repls.append((" m'i ", " ma'i "))
+        cls.repls.append((" M", " m"))
+        cls.repls.append(("(M", "(m"))
 
     #  setup a wylie object
     def initWylie(self, check, check_strict, print_warnings, fix_spacing, mode):
@@ -1137,34 +1057,34 @@ class pyewts(object):
     #  split a string into Converter tokens; 
     #  make sure there is room for at least one null element at the end of the array
     def splitIntoTokens(self, inputstr):
-        tokens = [None] * 2 + len(inputstr)
+        tokens = []
         o = 0
         i = 0
         maxlen = len(inputstr)
         while i < maxlen:
-            c = inputstr.charAt(i)
+            c = inputstr[i]
             mlo = self.m_tokens_start.get(c)
             #  if there are multi-char tokens starting with this char, try them
             if mlo != None:
-                len = mlo.intValue()
-                while len > 1:
-                    if i <= maxlen - len:
-                        tr = inputstr.substring(i, i + len)
+                lenval = mlo.intValue()
+                while lenval > 1:
+                    if i <= maxlen - lenval:
+                        tr = inputstr.substring(i, i + lenval)
                         if self.m_tokens.contains(tr):
                             o += 1
                             tokens[o] = tr
-                            i += len
-                            len -= 1
+                            i += lenval
+                            lenval -= 1
                             continue # TODO: was a named continue
-                    len -= 1
+                    lenval -= 1
             #  things starting with backslash are special
             if c == '\\' and i <= maxlen - 2:
-                if inputstr.charAt(i + 1) == 'u' and i <= maxlen - 6:
+                if inputstr[i + 1] == 'u' and i <= maxlen - 6:
                     o += 1
                     tokens[o] = inputstr.substring(i, i + 6)
                     #  \\uxxxx
                     i += 6
-                elif inputstr.charAt(i + 1) == 'U' and i <= maxlen - 10:
+                elif inputstr[i + 1] == 'U' and i <= maxlen - 10:
                     o += 1
                     tokens[o] = inputstr.substring(i, i + 10)
                     #  \\Uxxxxxxxx
@@ -1196,12 +1116,14 @@ class pyewts(object):
     # 	 
     @classmethod
     def normalizeSloppyWylie(cls, inputstr):
-        inputstr = StringUtils.replaceEach(inputstr, cls.base, cls.repl)
+        for k, v in cls.repls:
+            inputstr = inputstr.replace(k, v)
+
         #  convert S but not Sh:
         inputstr = inputstr.replace("Sh", "ZZZ")
         inputstr = inputstr.replace("S", "s")
         inputstr = inputstr.replace("ZZZ", "Sh")
-        if inputstr.startsWith("M"):
+        if inputstr.startswith("M"):
             inputstr = "m" + inputstr.substring(1)
         return inputstr
 
@@ -1267,12 +1189,12 @@ class pyewts(object):
                     if nesting == 0:
                         continue # TODO: named
                     #  handle unicode escapes and \1-char escapes within [comments]...
-                    if t.startsWith("\\u") or t.startsWith("\\U"):
+                    if t.startswith("\\u") or t.startswith("\\U"):
                         o = unicodeEscape(warns, line, t)
                         if o != None:
                             out += o
                             continue  # TODO: named
-                    if t.startsWith("\\"):
+                    if t.startswith("\\"):
                         o = t.substring(1)
                     else:
                         o = t
@@ -1306,13 +1228,13 @@ class pyewts(object):
             if t == "\ufeff" or t == "\u200b":
                 i += 1
                 continue # TODO: labelled
-            if t.startsWith("\\u") or t.startsWith("\\U"):
+            if t.startswith("\\u") or t.startswith("\\U"):
                 o = unicodeEscape(warns, line, t)
                 if o != None:
                     i += 1
                     out += o
                     continue  # TODO: named
-            if t.startsWith("\\"):
+            if t.startswith("\\"):
                 out += t.substring(1)
                 i += 1
                 continue # TODO: labelled
@@ -1324,7 +1246,7 @@ class pyewts(object):
                     while tokens[i] != None and tokens[i] == " ":
                         i+=1
                 continue  # TODO: named
-            c = t.charAt(0)
+            c = t[0]
             if self.isSpecial(t) or (c >= 'a' and c <= 'z') or (c >= 'A' and c <= 'Z'):
                 warnl(warns, line, "Unexpected character \"" + t + "\".")
             out += t
@@ -1332,14 +1254,14 @@ class pyewts(object):
         if units == 0:
             warn(warns, "No Tibetan characters found!")
         if self.check_strict:
-            if 0 > len(out) and self.isCombining(out.charAt(0)):
-                warn(warns, "String starts with combining character '" + out.charAt(0) + "'")
+            if 0 > len(out) and self.isCombining(out[0]):
+                warn(warns, "String starts with combining character '" + out[0] + "'")
         return out
 
     def validHex(self, t):
         i = 0
         while i < len(t):
-            c = t.charAt(i)
+            c = t[i]
             if not ((c >= 'a' and c <= 'f') or (c >= '0' and c <= '9')):
                 return False
             i += 1
@@ -1637,7 +1559,7 @@ class pyewts(object):
         len = len(inputstr)
         i += 1
         while i < len:
-            t = inputstr.charAt(i)
+            t = inputstr[i]
             if self.tib_top(t) != None:
                 tb = toWylieOneTsekbar(inputstr, len, i)
                 out += tb.wylie
@@ -1658,7 +1580,7 @@ class pyewts(object):
                 line += 1
                 i += 1
                 out += t
-                if t == '\r' and i < len and inputstr.charAt(i) == '\n':
+                if t == '\r' and i < len and inputstr[i] == '\n':
                     i += 1
                     out += '\n'
                 continue # TODO: labelled
@@ -1687,7 +1609,7 @@ class pyewts(object):
                     out += t
                 if i >= len:
                     break
-                t = inputstr.charAt(i)
+                t = inputstr[i]
             out += "]"
         return out
 
@@ -1705,12 +1627,12 @@ class pyewts(object):
     def handleSpaces(self, inputstr, i, out):
         found = 0
         orig_i = i
-        while i < len(inputstr) and inputstr.charAt(i) == ' ':
+        while i < len(inputstr) and inputstr[i] == ' ':
             i += 1
             found += 1
         if found == 0 or i == len(inputstr):
             return 0
-        t = inputstr.charAt(i)
+        t = inputstr[i]
         if self.tib_top(t) == None and self.tib_other(t) == None:
             return 0
         while i < found:
@@ -1720,11 +1642,11 @@ class pyewts(object):
 
     def followedByNonTibetan(self, inputstr, i):
         len = len(inputstr)
-        while i < len and inputstr.charAt(i) == ' ':
+        while i < len and inputstr[i] == ' ':
             i += 1
         if i == len:
             return False
-        t = inputstr.charAt(i)
+        t = inputstr[i]
         return self.tib_top(t) == None and self.tib_other(t) == None and t != '\r' and t != '\n'
 
     def toWylieOneTsekbar(self, inputstr, len, i):
@@ -1738,7 +1660,7 @@ class pyewts(object):
             i += st.tokens_used
             if st.visarga:
                 break
-            if i >= len or self.tib_top(inputstr.charAt(i)) == None:
+            if i >= len or self.tib_top(inputstr[i]) == None:
                 break
         last = len(stacks) - 1
         if len(stacks) > 1 and stacks.get(0).single_cons != None:
@@ -1782,11 +1704,11 @@ class pyewts(object):
         st = ToWylieStack()
         __i_9 = i
         i += 1
-        t = inputstr.charAt(__i_9)
+        t = inputstr[__i_9]
         st.top = self.tib_top(t)
         st.stack.add(self.tib_top(t))
         while i < len:
-            t = inputstr.charAt(i)
+            t = inputstr[i]
             o = None
             if (t in self.m_tib_subjoined):
                 o = self.tib_subjoined(t)
@@ -1851,7 +1773,7 @@ class pyewts(object):
             out += "^"
         if not st.vowels.isEmpty():
             out += self.joinStrings(st.vowels, "+")
-        elif not st.prefix and not st.suffix and not st.suff2 and (st.cons_str.isEmpty() or st.cons_str.charAt(1 - len(length)) != 'a'):
+        elif not st.prefix and not st.suffix and not st.suff2 and (st.cons_str.isEmpty() or st.cons_str[1 - len(length)] != 'a'):
             out += "a"
         out += self.joinStrings(st.finals, "")
         if st.dot:
