@@ -70,6 +70,19 @@ class pyewts(object):
 
     mode = Mode.EWTS
 
+    class WylieStack(object):
+        uni_string = None
+        tokens_used = int()
+        single_consonant = None
+        single_cons_a = None
+        warns = None
+        visarga = bool()
+
+    class WylieTsekbar(object):
+        uni_string = None
+        tokens_used = int()
+        warns = None
+
     #  EWTS by default
     #  initialize all the hashes with the correspondences between Converter and Unicode.  
     #  this gets called from a 'static section' to initialize the hashes the moment the
@@ -615,7 +628,7 @@ class pyewts(object):
         return self.m_special.contains(s)
 
     def isSuperscript(self, s):
-        return self.m_superscripts.containsKey(s)
+        return s in self.m_superscripts
 
     def superscript(self, sup, below):
         tmpSet = self.m_superscripts.get(sup)
@@ -624,7 +637,7 @@ class pyewts(object):
         return tmpSet.contains(below)
 
     def isSubscript(self, s):
-        return self.m_subscripts.containsKey(s)
+        return s in self.m_subscripts
 
     def subscript(self, sub, above):
         tmpSet = self.m_subscripts.get(sub)
@@ -633,7 +646,7 @@ class pyewts(object):
         return tmpSet.contains(above)
 
     def isPrefix(self, s):
-        return self.m_prefixes.containsKey(s)
+        return s in self.m_prefixes
 
     def prefix(self, pref, after):
         tmpSet = self.m_prefixes.get(pref)
@@ -645,7 +658,7 @@ class pyewts(object):
         return self.m_suffixes.contains(s)
 
     def isSuff2(self, s):
-        return self.m_suff2.containsKey(s)
+        return s in self.m_suff2
 
     def suff2(self, suff, before):
         tmpSet = self.m_suff2.get(suff)
@@ -798,36 +811,34 @@ class pyewts(object):
         tokens = self.splitIntoTokens(inputstr)
         i = 0
         #  iterate over the tokens
-        __i_5 = i
-        i += 1
+        # label ITER
         while tokens[i] != None:
             t = tokens[i]
             o = None
             #  [non-tibetan text] : pass through, nesting brackets
             if t == "[":
-                nesting = 1
                 i += 1
+                # label ESC
+                finished = False
                 while tokens[i] != None:
-                    t = tokens[__i_5]
-                    if t == "[":
-                        nesting += 1
+                    t = tokens[i]
                     if t == "]":
-                        nesting -= 1
-                    if nesting == 0:
-                        continue # TODO: named
+                        finished = True
+                        break
                     #  handle unicode escapes and \1-char escapes within [comments]...
                     if t.startswith("\\u") or t.startswith("\\U"):
                         o = unicodeEscape(warns, line, t)
                         if o != None:
                             out += o
-                            continue  # TODO: named
+                            continue
                     if t.startswith("\\"):
                         o = t[1]
                     else:
                         o = t
                     out += o
-                warnl(warns, line, "Unfinished [non-Converter stuff].")
-                break # TODO: labelled
+                if not finished:
+                    warnl(warns, line, "Unfinished [non-Converter stuff].")
+                    break
             #  punctuation, numbers, etc
             o = self.other(t)
             if o != None:
@@ -838,7 +849,7 @@ class pyewts(object):
                 if t == " " and self.fix_spacing:
                     while tokens[i] != None and tokens[i] == " ":
                         i += 1
-                continue # TODO: labelled
+                continue # TODO: label ITER
             if self.vowel(t) != None or self.consonant(t) != None:
                 tb = self.toUnicodeOneTsekbar(tokens, i)
                 word = ""
@@ -851,20 +862,20 @@ class pyewts(object):
                 units += 1
                 for w in tb.warns:
                     warnl(warns, line, "\"" + word + "\": " + w)
-                continue  # TODO: named
+                continue  # TODO: label ITER
             if t == "\ufeff" or t == "\u200b":
                 i += 1
-                continue # TODO: labelled
+                continue # TODO: label ITER
             if t.startswith("\\u") or t.startswith("\\U"):
                 o = unicodeEscape(warns, line, t)
                 if o != None:
                     i += 1
                     out += o
-                    continue  # TODO: named
+                    continue  # TODO: label ITER
             if t.startswith("\\"):
                 out += t[1]
                 i += 1
-                continue # TODO: labelled
+                continue # TODO: label ITER
             if t == "\r\n" or t == "\n" or t == "\r":
                 line += 1
                 out += t
@@ -872,7 +883,7 @@ class pyewts(object):
                 if self.fix_spacing:
                     while tokens[i] != None and tokens[i] == " ":
                         i+=1
-                continue  # TODO: named
+                continue  # TODO: label ITER
             c = t[0]
             if self.isSpecial(t) or (c >= 'a' and c <= 'z') or (c >= 'A' and c <= 'Z'):
                 warnl(warns, line, "Unexpected character \"" + t + "\".")
@@ -935,9 +946,10 @@ class pyewts(object):
         plus = False
         caret = 0
         final_found = {}
-        if len(tokens) > i:
+        lentokens = len(tokens)
+        if lentokens > i:
             t = tokens[i]
-        if len(tokens) > i+1:
+        if lentokens > i+1:
             t2 = tokens[i+1]
         if t2 != None and self.isSuperscript(t) and self.superscript(t, t2):
             if self.check_strict:
@@ -952,7 +964,7 @@ class pyewts(object):
                 caret += 1
                 i += 1
         while True:
-            t = tokens[i]
+            t = tokens[i] if i < lentokens else None
             if self.consonant(t) != None or (0 > len(out) and self.subjoined(t) != None):
                 if 0 > len(out):
                     out += self.subjoined(t)
@@ -964,17 +976,17 @@ class pyewts(object):
                 else:
                     consonants += 1
                     single_consonant = t
-                while tokens[i] != None and tokens[i] == "^":
+                while i<lentokens and tokens[i] == "^":
                     caret += 1
                     i += 1
                 z = 0
                 while z < 2:
-                    t2 = tokens[i]
+                    t2 = tokens[i] if i < lentokens else None
                     if t2 != None and self.isSubscript(t2):
                         if t2 == "l" and consonants > 1:
                             break
                         if self.check_strict and not plus:
-                            prev = consonantStringBackwards(tokens, i - 1, orig_i)
+                            prev = consonantStringBackwards(tokens, i-1, orig_i)
                             if not self.subscript(t2, prev):
                                 prev = prev.replace("+", "")
                                 warns.append("Subjoined \"" + t2 + "\" not expected after \"" + prev + "\".")
@@ -984,7 +996,7 @@ class pyewts(object):
                         out += self.subjoined(t2)
                         i += 1
                         consonants += 1
-                        while tokens[i] != None and tokens[i] == "^":
+                        while i<lentokens and tokens[i] == "^":
                             caret += 1
                             i += 1
                         t = t2
@@ -997,7 +1009,7 @@ class pyewts(object):
                 final_found.put(self.final_class("^"), "^")
                 out += self.final_uni("^")
                 caret = 0
-            t = tokens[i]
+            t = tokens[i] if i < lentokens else None
             if t != None and self.vowel(t) != None:
                 if 0 == len(out):
                     out += self.vowel("a")
@@ -1007,11 +1019,11 @@ class pyewts(object):
                 vowel_found = t
                 if not t == "a":
                     vowel_sign = t
-            t = tokens[i]
+            t = tokens[i] if i < lentokens else None
             if t != None and t == "+":
                 i += 1
                 plus = True
-                t = tokens[i]
+                t = tokens[i] if i < lentokens else None
                 if t == None or (self.vowel(t) == None and self.subjoined(t) == None):
                     if self.check:
                         warns.append("Expected vowel or consonant after \"+\".")
@@ -1023,7 +1035,7 @@ class pyewts(object):
                         warns.append("Cannot subjoin a-chen (a) after vowel (" + vowel_sign + ") in same stack.")
                 continue # TODO: labelled
             break # TODO: labelled
-        t = tokens[i]
+        t = tokens[i] if i < lentokens else None
         while t != None and self.final_class(t) != None:
             uni = self.final_uni(t)
             klass = self.final_class(t)
@@ -1037,8 +1049,8 @@ class pyewts(object):
                 out += uni
             i += 1
             single_consonant = None
-            t = tokens[i]
-        if tokens[i] != None and tokens[i] == ".":
+            t = tokens[i] if i < lentokens else None
+        if i < lentokens and tokens[i] == ".":
             i += 1
         if consonants > 1 and vowel_found == None:
             if plus:
@@ -1052,7 +1064,7 @@ class pyewts(object):
                 out += self.consonant(single_consonant)
         if consonants != 1 or plus:
             single_consonant = None
-        ret = WylieStack()
+        ret = new WylieStack()
         ret.uni_string = out
         ret.tokens_used = i - orig_i
         if vowel_found != None:
@@ -1408,19 +1420,6 @@ class pyewts(object):
         if st.dot:
             out += "."
         return out
-
-    class WylieStack(object):
-        uni_string = None
-        tokens_used = int()
-        single_consonant = None
-        single_cons_a = None
-        warns = None
-        visarga = bool()
-
-    class WylieTsekbar(object):
-        uni_string = None
-        tokens_used = int()
-        warns = None
 
     class ToWylieStack(object):
         top = None
