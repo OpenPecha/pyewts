@@ -810,9 +810,10 @@ class pyewts(object):
         #  split into tokens
         tokens = self.splitIntoTokens(inputstr)
         i = 0
+        lentokens = len(tokens)
         #  iterate over the tokens
         # label ITER
-        while tokens[i] != None:
+        while i<lentokens:
             t = tokens[i]
             o = None
             #  [non-tibetan text] : pass through, nesting brackets
@@ -820,7 +821,7 @@ class pyewts(object):
                 i += 1
                 # label ESC
                 finished = False
-                while tokens[i] != None:
+                while i<lentokens:
                     t = tokens[i]
                     if t == "]":
                         finished = True
@@ -1039,7 +1040,7 @@ class pyewts(object):
         while t != None and self.final_class(t) != None:
             uni = self.final_uni(t)
             klass = self.final_class(t)
-            if final_found.containsKey(klass):
+            if klass in final_found:
                 if final_found.get(klass) == t:
                     warns.append("Cannot have two \"" + t + "\" applied to the same stack.")
                 else:
@@ -1064,7 +1065,7 @@ class pyewts(object):
                 out += self.consonant(single_consonant)
         if consonants != 1 or plus:
             single_consonant = None
-        ret = new WylieStack()
+        ret = self.WylieStack()
         ret.uni_string = out
         ret.tokens_used = i - orig_i
         if vowel_found != None:
@@ -1076,7 +1077,7 @@ class pyewts(object):
         else:
             ret.single_cons_a = None
         ret.warns = warns
-        ret.visarga = final_found.containsKey("H")
+        ret.visarga = "H" in final_found
         return ret
 
     def toUnicodeOneTsekbar(self, tokens, i):
@@ -1091,12 +1092,13 @@ class pyewts(object):
         out = ""
         warns = []
         state = self.State.PREFIX
+        lentokens = len(tokens)
         while t != None and (self.vowel(t) != None or self.consonant(t) != None) and not visarga:
             if stack != None:
                 prev_cons = stack.single_consonant
             stack = self.toUnicodeOneStack(tokens, i)
             i += stack.tokens_used
-            t = tokens[i]
+            t = tokens[i] if i < lentokens else None
             out += stack.uni_string
             warns += stack.warns
             visarga = stack.visarga
@@ -1119,7 +1121,7 @@ class pyewts(object):
                 if root_idx >= 0:
                     check_root = False
                 elif stack.single_cons_a != None:
-                    consonants.add(stack.single_cons_a)
+                    consonants.append(stack.single_cons_a)
                     root_idx = len(consonants) - 1
             elif state == self.State.MAIN:
                 warns.append("Expected vowel after \"" + stack.single_consonant + "\".")
@@ -1152,7 +1154,7 @@ class pyewts(object):
                 expect_key = self.ambiguous_key(cc)
                 if expect_key != None and expect_key.intValue() != root_idx:
                     warns.append("Syllable should probably be \"" + self.ambiguous_wylie(cc) + "\".")
-        ret = WylieTsekbar()
+        ret = self.WylieTsekbar()
         ret.uni_string = out
         ret.tokens_used = i - orig_i
         ret.warns = warns
