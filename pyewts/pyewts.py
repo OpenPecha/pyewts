@@ -1160,18 +1160,22 @@ class pyewts(object):
         ret.warns = warns
         return ret
 
+
+    # Looking from i onwards within tokens, returns as many consonants as it finds,
+    # up to and not including the next vowel or punctuation.  Skips the caret "^".
+    # Returns: a string of consonants joined by "+" signs.
     def consonantString(self, tokens, i):
         out = ArrayList()
         t = None
-        __i_6 = i
-        i += 1
-        while tokens[i] != None:
-            t = tokens[__i_6]
+        i+=1
+        while i<len(tokens):
+            t = tokens[i]
             if t == "+" or t == "^":
                 continue 
             if self.consonant(t) == None:
                 break
             out.add(t)
+            i+=1
         return self.joinStrings(out, "+")
 
     def consonantStringBackwards(self, tokens, i, orig_i):
@@ -1188,7 +1192,7 @@ class pyewts(object):
             out.addFirst(t)
         return self.joinStrings(out, "+")
 
-    def toWylie_0(self, inputstr, warns=None, escape=True):
+    def toWylie(self, inputstr, warns=None, escape=True):
         out = ""
         line = 1
         inputstr = inputstr.replace("\u0f76", "\u0fb2\u0f80")
@@ -1198,13 +1202,12 @@ class pyewts(object):
         inputstr = inputstr.replace("\u0f81", "\u0f71\u0f80")
         inputstr = inputstr.replace("\u0F75", "\u0F71\u0F74")
         inputstr = inputstr.replace("\u0F73", "\u0F71\u0F72")
-        i = 0
-        len = len(inputstr)
-        i += 1
-        while i < len:
+        i = 1
+        lenstr = len(inputstr)
+        while i < lenstr:
             t = inputstr[i]
             if self.tib_top(t) != None:
-                tb = toWylieOneTsekbar(inputstr, len, i)
+                tb = self.toWylieOneTsekbar(inputstr, lenstr, i)
                 out += tb.wylie
                 i += tb.tokens_used
                 for w in tb.warns:
@@ -1223,7 +1226,7 @@ class pyewts(object):
                 line += 1
                 i += 1
                 out += t
-                if t == '\r' and i < len and inputstr[i] == '\n':
+                if t == '\r' and i < lenstr and inputstr[i] == '\n':
                     i += 1
                     out += '\n'
                 continue # TODO: labelled
@@ -1250,7 +1253,7 @@ class pyewts(object):
                     out += formatHex(t)
                 else:
                     out += t
-                if i >= len:
+                if i >= lenstr:
                     break
                 t = inputstr[i]
             out += "]"
@@ -1284,26 +1287,26 @@ class pyewts(object):
         return found
 
     def followedByNonTibetan(self, inputstr, i):
-        len = len(inputstr)
-        while i < len and inputstr[i] == ' ':
+        lenstr = len(inputstr)
+        while i < lenstr and inputstr[i] == ' ':
             i += 1
-        if i == len:
+        if i == lenstr:
             return False
         t = inputstr[i]
         return self.tib_top(t) == None and self.tib_other(t) == None and t != '\r' and t != '\n'
 
-    def toWylieOneTsekbar(self, inputstr, len, i):
+    def toWylieOneTsekbar(self, inputstr, lenstr, i):
         orig_i = i
-        warns = ArrayList()
-        stacks = ArrayList()
+        warns = []
+        stacks = []
         while True:
-            st = toWylieOneStack(inputstr, len, i)
-            stacks.add(st)
+            st = self.toWylieOneStack(inputstr, lenstr, i)
+            stacks.append(st)
             warns.addAll(st.warns)
             i += st.tokens_used
             if st.visarga:
                 break
-            if i >= len or self.tib_top(inputstr[i]) == None:
+            if i >= lenstr or self.tib_top(inputstr[i]) == None:
                 break
         last = len(stacks) - 1
         if len(stacks) > 1 and stacks.get(0).single_cons != None:
@@ -1318,10 +1321,9 @@ class pyewts(object):
         if len(stacks) == 2 and stacks.get(0).prefix and stacks.get(1).suffix:
             stacks.get(0).prefix = False
         if len(stacks) == 3 and stacks.get(0).prefix and stacks.get(1).suffix and stacks.get(2).suff2:
-            strb = StringBuilder()
+            ztr = ""
             for st in stacks:
-                strb.append(st.single_cons)
-            ztr = strb.__str__()
+                ztr += st.single_cons
             root = self.ambiguous_key(ztr)
             if root == None:
                 warns.add("Ambiguous syllable found: root consonant not known for \"" + ztr + "\".")
@@ -1339,36 +1341,36 @@ class pyewts(object):
         ret.warns = warns
         return ret
 
-    def toWylieOneStack(self, inputstr, len, i):
+    def toWylieOneStack(self, inputstr, lenstr, i):
         orig_i = i
         ffinal = None
         vowel = None
         klass = None
-        st = ToWylieStack()
-        __i_9 = i
+        st = self.ToWylieStack()
         i += 1
-        t = inputstr[__i_9]
+        t = inputstr[i]
         st.top = self.tib_top(t)
-        st.stack.add(self.tib_top(t))
-        while i < len:
+        if st.top is not None:
+            st.stack.append(self.tib_top(t))
+        while i < lenstr:
             t = inputstr[i]
             o = None
             if (t in self.m_tib_subjoined):
                 o = self.tib_subjoined(t)
                 i += 1
-                st.stack.add(o)
-                if not st.finals.isEmpty():
-                    st.warns.add("Subjoined sign \"" + o + "\" found after final sign \"" + ffinal + "\".")
-                elif not st.vowels.isEmpty():
-                    st.warns.add("Subjoined sign \"" + o + "\" found after vowel sign \"" + vowel + "\".")
+                st.stack.append(o)
+                if len(st.finals) > 0:
+                    st.warns.append("Subjoined sign \"" + o + "\" found after final sign \"" + ffinal + "\".")
+                elif len(st.vowels) > 0:
+                    st.warns.append("Subjoined sign \"" + o + "\" found after vowel sign \"" + vowel + "\".")
             elif (t in self.m_tib_vowel):
                 o = self.tib_vowel(t)
                 i += 1
-                st.vowels.add(o)
+                st.vowels.append(o)
                 if vowel == None:
                     vowel = o
-                if not st.finals.isEmpty():
-                    st.warns.add("Vowel sign \"" + o + "\" found after final sign \"" + ffinal + "\".")
+                if len(st.finals) > 0:
+                    st.warns.append("Vowel sign \"" + o + "\" found after final sign \"" + ffinal + "\".")
             elif (t in self.m_tib_final_wylie):
                 o = self.tib_final_wylie(t)
                 i += 1
@@ -1378,16 +1380,16 @@ class pyewts(object):
                 else:
                     if o == "H":
                         st.visarga = True
-                    st.finals.add(o)
+                    st.finals.append(o)
                     if ffinal == None:
                         ffinal = o
                     if st.finals_found.containsKey(klass):
-                        st.warns.add("Final sign \"" + o + "\" should not combine with found after final sign \"" + ffinal + "\".")
+                        st.warns.append("Final sign \"" + o + "\" should not combine with found after final sign \"" + ffinal + "\".")
                     else:
                         st.finals_found.put(klass, o)
             else:
                 break
-        if st.top == "a" and len(st.stack) == 1 and not st.vowels.isEmpty():
+        if st.top == "a" and len(st.stack) == 1 and len(st.vowels) > 0:
             st.stack.removeFirst()
         if len(st.vowels) > 1 and st.vowels.get(0) == "A" and self.tib_vowel_long(st.vowels.get(1)) != None:
             l = self.tib_vowel_long(st.vowels.get(1))
@@ -1400,8 +1402,9 @@ class pyewts(object):
             st.stack.removeFirst()
             st.stack.addFirst(l)
             st.caret = False
+        print(st.stack)
         st.cons_str = self.joinStrings(st.stack, "+")
-        if len(st.stack) == 1 and not st.stack.get(0) == "a" and not st.caret and st.vowels.isEmpty() and st.finals.isEmpty():
+        if len(st.stack) == 1 and not st.stack.get(0) == "a" and not st.caret and len(st.vowels) == 0 and len(st.finals) == 0:
             st.single_cons = st.cons_str
         st.tokens_used = i - orig_i
         return st
@@ -1414,9 +1417,9 @@ class pyewts(object):
             out += st.cons_str
         if st.caret:
             out += "^"
-        if not st.vowels.isEmpty():
+        if len(st.vowels) > 0:
             out += self.joinStrings(st.vowels, "+")
-        elif not st.prefix and not st.suffix and not st.suff2 and (st.cons_str.isEmpty() or st.cons_str[1 - len(length)] != 'a'):
+        elif not st.prefix and not st.suffix and not st.suff2 and (len(st.cons_str) == 0 or st.cons_str[1 - len(length)] != 'a'):
             out += "a"
         out += self.joinStrings(st.finals, "")
         if st.dot:
@@ -1441,11 +1444,11 @@ class pyewts(object):
         warns = None
 
         def __init__(self):
-            self.stack = LinkedList()
-            self.vowels = LinkedList()
-            self.finals = ArrayList()
+            self.stack = []
+            self.vowels = []
+            self.finals = []
             self.finals_found = {}
-            self.warns = ArrayList()
+            self.warns = []
 
     class ToWylieTsekbar(object):
         wylie = None
