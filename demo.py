@@ -1,6 +1,6 @@
 import pyewts
 
 converter = pyewts.pyewts()
-print(converter.toUnicode("ba b+ba"))
+print(converter.toUnicode("ba b+ba [a] ba\\u0f0b"))
 
-print(converter.toWylie("བ་བྦ"))
+print(converter.toWylie("བ་བྦཀཱྀ་ཀཱ"))

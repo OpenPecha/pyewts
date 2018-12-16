@@ -649,7 +649,7 @@ class pyewts(object):
     def prefix(self, pref, after):
         if pref not in self.m_prefixes:
             return False
-        return after in self.m_prefixes[after]
+        return after in self.m_prefixes[pref]
 
     def isSuffix(self, s):
         return s in self.m_suffixes
@@ -818,13 +818,14 @@ class pyewts(object):
                 # label ESC
                 finished = False
                 while i<lentokens:
+                    i += 1
                     t = tokens[i]
                     if t == "]":
                         finished = True
                         break
                     #  handle unicode escapes and \1-char escapes within [comments]...
                     if t.startswith("\\u") or t.startswith("\\U"):
-                        o = unicodeEscape(warns, line, t)
+                        o = self.unicodeEscape(warns, line, t)
                         if o != None:
                             out += o
                             continue
@@ -834,7 +835,7 @@ class pyewts(object):
                         o = t
                     out += o
                 if not finished:
-                    warnl(warns, line, "Unfinished [non-Converter stuff].")
+                    self.warnl(warns, line, "Unfinished [non-Converter stuff].")
                     break
             #  punctuation, numbers, etc
             o = self.other(t)
@@ -858,13 +859,13 @@ class pyewts(object):
                 i += tb.tokens_used
                 units += 1
                 for w in tb.warns:
-                    warnl(warns, line, "\"" + word + "\": " + w)
+                    self.warnl(warns, line, "\"" + word + "\": " + w)
                 continue  # TODO: label ITER
             if t == "\ufeff" or t == "\u200b":
                 i += 1
                 continue # TODO: label ITER
             if t.startswith("\\u") or t.startswith("\\U"):
-                o = unicodeEscape(warns, line, t)
+                o = self.unicodeEscape(warns, line, t)
                 if o != None:
                     i += 1
                     out += o
@@ -883,14 +884,14 @@ class pyewts(object):
                 continue  # TODO: label ITER
             c = t[0]
             if self.isSpecial(t) or (c >= 'a' and c <= 'z') or (c >= 'A' and c <= 'Z'):
-                warnl(warns, line, "Unexpected character \"" + t + "\".")
+                self.warnl(warns, line, "Unexpected character \"" + t + "\".")
             out += t
             i += 1
         if units == 0:
-            warn(warns, "No Tibetan characters found!")
+            self.warn(warns, "No Tibetan characters found!")
         if self.check_strict:
             if 0 > len(out) and self.isCombining(out[0]):
-                warn(warns, "String starts with combining character '" + out[0] + "'")
+                self.warn(warns, "String starts with combining character '" + out[0] + "'")
         return out
 
     def validHex(self, t):
@@ -904,12 +905,13 @@ class pyewts(object):
 
     def unicodeEscape(self, warns, line, t):
         hex = t[2]
-        if hex.isEmpty():
+        if len(hex) == 0:
             return None
         if not self.validHex(hex):
-            warnl(warns, line, "\"" + t + "\": invalid hex code.")
+            self.warnl(warns, line, "\"" + t + "\": invalid hex code.")
             return ""
-        return Character.valueOf(str(Integer.parseInt(hex, 16))).__str__()
+        i = int(hex,16)
+        return chr(i)
 
     def warn(self, warns, inputstr):
         if warns != None:
@@ -918,7 +920,7 @@ class pyewts(object):
             print(inputstr)
 
     def warnl(self, warns, line, inputstr):
-        self.warn(warns, "line " + line + ": " + inputstr)
+        self.warn(warns, "line " + str(line) + ": " + inputstr)
 
     def debug(self, inputstr):
         print(inputstr)
@@ -1386,17 +1388,17 @@ class pyewts(object):
             else:
                 break
         if st.top == "a" and len(st.stack) == 1 and len(st.vowels) > 0:
-            st.stack.removeFirst()
+            del st.stack[0]
         if len(st.vowels) > 1 and st.vowels[0] == "A" and self.tib_vowel_long(st.vowels[1]) != None:
             l = self.tib_vowel_long(st.vowels[1])
-            st.vowels.removeFirst()
-            st.vowels.removeFirst()
-            st.vowels.addFirst(l)
+            del st.vowels[0]
+            del st.vowels[0]
+            st.vowels.insert(0,l)
         if st.caret and len(st.stack) == 1 and self.tib_caret(st.top) != None:
             l = self.tib_caret(st.top)
             st.top = l
-            st.stack.removeFirst()
-            st.stack.addFirst(l)
+            del st.stack[0]
+            st.stack.insert(0,l)
             st.caret = False
         st.cons_str = self.joinStrings(st.stack, "+")
         if len(st.stack) == 1 and not st.stack[0] == "a" and not st.caret and len(st.vowels) == 0 and len(st.finals) == 0:
