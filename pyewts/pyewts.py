@@ -814,7 +814,6 @@ class pyewts(object):
             o = None
             #  [non-tibetan text] : pass through, nesting brackets
             if t == "[":
-                i += 1
                 # label ESC
                 finished = False
                 while i<lentokens:
@@ -837,6 +836,9 @@ class pyewts(object):
                 if not finished:
                     self.warnl(warns, line, "Unfinished [non-Converter stuff].")
                     break
+                else:
+                    i += 1
+                    continue
             #  punctuation, numbers, etc
             o = self.other(t)
             if o != None:
@@ -904,7 +906,7 @@ class pyewts(object):
         return True
 
     def unicodeEscape(self, warns, line, t):
-        hex = t[2]
+        hex = t[2:]
         if len(hex) == 0:
             return None
         if not self.validHex(hex):
