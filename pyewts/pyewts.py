@@ -625,46 +625,42 @@ class pyewts(object):
         return self.m_other.get(s)
 
     def isSpecial(self, s):
-        return self.m_special.contains(s)
+        return s in self.m_special
 
     def isSuperscript(self, s):
         return s in self.m_superscripts
 
     def superscript(self, sup, below):
-        tmpSet = self.m_superscripts.get(sup)
-        if tmpSet == None:
+        if sup not in self.m_superscripts:
             return False
-        return tmpSet.contains(below)
+        return below in self.m_superscripts[sup]
 
     def isSubscript(self, s):
         return s in self.m_subscripts
 
     def subscript(self, sub, above):
-        tmpSet = self.m_subscripts.get(sub)
-        if tmpSet == None:
+        if sub not in self.m_subscripts:
             return False
-        return tmpSet.contains(above)
+        return above in self.m_subscripts[sub]
 
     def isPrefix(self, s):
         return s in self.m_prefixes
 
     def prefix(self, pref, after):
-        tmpSet = self.m_prefixes.get(pref)
-        if tmpSet == None:
+        if pref not in self.m_prefixes:
             return False
-        return tmpSet.contains(after)
+        return after in self.m_prefixes[after]
 
     def isSuffix(self, s):
-        return self.m_suffixes.contains(s)
+        return s in self.m_suffixes
 
     def isSuff2(self, s):
         return s in self.m_suff2
 
     def suff2(self, suff, before):
-        tmpSet = self.m_suff2.get(suff)
-        if tmpSet == None:
+        if suff not in self.m_suff2:
             return False
-        return tmpSet.contains(before)
+        return before in self.m_suff2
 
     def ambiguous_key(self, syll):
         return self.m_ambiguous_key.get(syll)
@@ -697,7 +693,7 @@ class pyewts(object):
         return self.m_tib_other.get(c)
 
     def tib_stack(self, s):
-        return self.m_tib_stacks.contains(s)
+        return s in self.m_tib_stacks
 
     #  split a string into Converter tokens; 
     #  make sure there is room for at least one null element at the end of the array
@@ -1145,9 +1141,9 @@ class pyewts(object):
         if state == self.State.MAIN and stack.single_consonant != None and self.isPrefix(stack.single_consonant):
             warns.append("Vowel expected after \"" + stack.single_consonant + "\".")
         if self.check and len(warns) == 0 and check_root and root_idx >= 0:
-            if len(consonants) == 2 and root_idx != 0 and self.prefix(consonants.get(0), consonants.get(1)) and self.isSuffix(consonants.get(1)):
-                warns.append("Syllable should probably be \"" + consonants.get(0) + "a" + consonants.get(1) + "\".")
-            elif len(consonants) == 3 and self.isPrefix(consonants.get(0)) and self.suff2("s", consonants.get(1)) and consonants.get(2) == "s":
+            if len(consonants) == 2 and root_idx != 0 and self.prefix(consonants[0], consonants[1]) and self.isSuffix(consonants[1]):
+                warns.append("Syllable should probably be \"" + consonants[0] + "a" + consonants[1] + "\".")
+            elif len(consonants) == 3 and self.isPrefix(consonants[0]) and self.suff2("s", consonants[1]) and consonants[2] == "s":
                 cc = self.joinStrings(consonants, "")
                 cc = cc.replace('\u2018', '\'')
                 cc = cc.replace('\u2019', '\'')
@@ -1165,31 +1161,31 @@ class pyewts(object):
     # up to and not including the next vowel or punctuation.  Skips the caret "^".
     # Returns: a string of consonants joined by "+" signs.
     def consonantString(self, tokens, i):
-        out = ArrayList()
+        out = []
         t = None
-        i+=1
+        i += 1
         while i<len(tokens):
             t = tokens[i]
+            i += 1
             if t == "+" or t == "^":
                 continue 
             if self.consonant(t) == None:
                 break
-            out.add(t)
-            i+=1
+            out.append(t)
         return self.joinStrings(out, "+")
 
     def consonantStringBackwards(self, tokens, i, orig_i):
-        out = LinkedList()
+        out = []
         t = None
-        __i_7 = i
         i -= 1
         while i >= orig_i and tokens[i] != None:
-            t = tokens[__i_7]
+            t = tokens[i]
+            i -= 1
             if t == "+" or t == "^":
                 continue 
             if self.consonant(t) == None:
                 break
-            out.addFirst(t)
+            out.insert(0,t)
         return self.joinStrings(out, "+")
 
     def toWylie(self, inputstr, warns=None, escape=True):
@@ -1302,25 +1298,25 @@ class pyewts(object):
         while True:
             st = self.toWylieOneStack(inputstr, lenstr, i)
             stacks.append(st)
-            warns.addAll(st.warns)
+            warns += st.warns
             i += st.tokens_used
             if st.visarga:
                 break
             if i >= lenstr or self.tib_top(inputstr[i]) == None:
                 break
         last = len(stacks) - 1
-        if len(stacks) > 1 and stacks.get(0).single_cons != None:
-            cs = stacks.get(1).cons_str.replace("+w", "")
-            if self.prefix(stacks.get(0).single_cons, cs):
-                stacks.get(0).prefix = True
-        if len(stacks) > 1 and stacks.get(last).single_cons != None and self.isSuffix(stacks.get(last).single_cons):
-            stacks.get(last).suffix = True
-        if len(stacks) > 2 and stacks.get(last).single_cons != None and stacks.get(last - 1).single_cons != None and self.isSuffix(stacks.get(last - 1).single_cons) and self.suff2(stacks.get(last).single_cons, stacks.get(last - 1).single_cons):
-            stacks.get(last).suff2 = True
-            stacks.get(last - 1).suffix = True
-        if len(stacks) == 2 and stacks.get(0).prefix and stacks.get(1).suffix:
-            stacks.get(0).prefix = False
-        if len(stacks) == 3 and stacks.get(0).prefix and stacks.get(1).suffix and stacks.get(2).suff2:
+        if len(stacks) > 1 and stacks[0].single_cons != None:
+            cs = stacks[1].cons_str.replace("+w", "")
+            if self.prefix(stacks[0].single_cons, cs):
+                stacks[0].prefix = True
+        if len(stacks) > 1 and stacks[last].single_cons != None and self.isSuffix(stacks[last].single_cons):
+            stacks[last].suffix = True
+        if len(stacks) > 2 and stacks[last].single_cons != None and stacks[last-1].single_cons != None and self.isSuffix(stacks[last-1].single_cons) and self.suff2(stacks.get[last].single_cons, stacks[last-1].single_cons):
+            stacks[last].suff2 = True
+            stacks[last-1].suffix = True
+        if len(stacks) == 2 and stacks[0].prefix and stacks[1].suffix:
+            stacks[0].prefix = False
+        if len(stacks) == 3 and stacks[0].prefix and stacks[1].suffix and stacks[2].suff2:
             ztr = ""
             for st in stacks:
                 ztr += st.single_cons
@@ -1328,14 +1324,14 @@ class pyewts(object):
             if root == None:
                 warns.add("Ambiguous syllable found: root consonant not known for \"" + ztr + "\".")
                 root = 1
-            stacks.get(root).prefix = stacks.get(root).suffix = False
-            stacks.get(root + 1).suff2 = False
-        if stacks.get(0).prefix and self.tib_stack(stacks.get(0).single_cons + "+" + stacks.get(1).cons_str):
-            stacks.get(0).dot = True
+            stacks[root].prefix = stacks[root].suffix = False
+            stacks[root+1].suff2 = False
+        if stacks[0].prefix and self.tib_stack(stacks[0].single_cons + "+" + stacks[1].cons_str):
+            stacks[0].dot = True
         out = ""
         for st in stacks:
-            out += putStackTogether(st)
-        ret = ToWylieTsekbar()
+            out += self.putStackTogether(st)
+        ret = self.ToWylieTsekbar()
         ret.wylie = out
         ret.tokens_used = i - orig_i
         ret.warns = warns
@@ -1391,8 +1387,8 @@ class pyewts(object):
                 break
         if st.top == "a" and len(st.stack) == 1 and len(st.vowels) > 0:
             st.stack.removeFirst()
-        if len(st.vowels) > 1 and st.vowels.get(0) == "A" and self.tib_vowel_long(st.vowels.get(1)) != None:
-            l = self.tib_vowel_long(st.vowels.get(1))
+        if len(st.vowels) > 1 and st.vowels[0] == "A" and self.tib_vowel_long(st.vowels[1]) != None:
+            l = self.tib_vowel_long(st.vowels[1])
             st.vowels.removeFirst()
             st.vowels.removeFirst()
             st.vowels.addFirst(l)
@@ -1402,9 +1398,8 @@ class pyewts(object):
             st.stack.removeFirst()
             st.stack.addFirst(l)
             st.caret = False
-        print(st.stack)
         st.cons_str = self.joinStrings(st.stack, "+")
-        if len(st.stack) == 1 and not st.stack.get(0) == "a" and not st.caret and len(st.vowels) == 0 and len(st.finals) == 0:
+        if len(st.stack) == 1 and not st.stack[0] == "a" and not st.caret and len(st.vowels) == 0 and len(st.finals) == 0:
             st.single_cons = st.cons_str
         st.tokens_used = i - orig_i
         return st
@@ -1419,7 +1414,7 @@ class pyewts(object):
             out += "^"
         if len(st.vowels) > 0:
             out += self.joinStrings(st.vowels, "+")
-        elif not st.prefix and not st.suffix and not st.suff2 and (len(st.cons_str) == 0 or st.cons_str[1 - len(length)] != 'a'):
+        elif not st.prefix and not st.suffix and not st.suff2 and (len(st.cons_str) == 0 or st.cons_str[len(st.cons_str)-1] != 'a'):
             out += "a"
         out += self.joinStrings(st.finals, "")
         if st.dot:
