@@ -77,6 +77,8 @@ class pyewts(object):
         single_cons_a = None
         warns = None
         visarga = bool()
+        def __str__(self):
+            return "uni_string: %s tokens_used: %d single_consonant %s single_cons_a %s" % (self.uni_string, self.tokens_used, self.single_consonant, self.single_cons_a)
 
     class WylieTsekbar(object):
         uni_string = None
@@ -917,7 +919,7 @@ class pyewts(object):
 
     def warn(self, warns, inputstr):
         if warns != None:
-            warns.add(inputstr)
+            warns.append(inputstr)
         if self.print_warnings:
             print(inputstr)
 
@@ -967,7 +969,7 @@ class pyewts(object):
         while True:
             t = tokens[i] if i < lentokens else None
             if self.consonant(t) != None or (0 > len(out) and self.subjoined(t) != None):
-                if 0 > len(out):
+                if 0 < len(out):
                     out += self.subjoined(t)
                 else:
                     out += self.consonant(t)
@@ -1034,8 +1036,8 @@ class pyewts(object):
                         warns.append("Cannot subjoin consonant (" + t + ") after vowel (" + vowel_sign + ") in same stack.")
                     elif t == "a" and vowel_sign != None:
                         warns.append("Cannot subjoin a-chen (a) after vowel (" + vowel_sign + ") in same stack.")
-                continue # TODO: labelled
-            break # TODO: labelled
+                continue
+            break
         t = tokens[i] if i < lentokens else None
         while t != None and self.final_class(t) != None:
             uni = self.final_uni(t)
@@ -1213,15 +1215,15 @@ class pyewts(object):
                 for w in tb.warns:
                     self.warnl(warns, line, w)
                 if not escape:
-                    i += handleSpaces(inputstr, i, out)
-                continue # TODO: labelled
+                    i += self.handleSpaces(inputstr, i, out)
+                continue
             o = self.tib_other(t)
-            if o != None and (t != ' ' or (escape and not followedByNonTibetan(inputstr, i))):
+            if o != None and (t != ' ' or (escape and not self.followedByNonTibetan(inputstr, i))):
                 out += o
                 i += 1
                 if not escape:
-                    i += handleSpaces(inputstr, i, out)
-                continue # TODO: labelled
+                    i += self.handleSpaces(inputstr, i, out)
+                continue
             if t == '\r' or t == '\n':
                 line += 1
                 i += 1
@@ -1229,21 +1231,21 @@ class pyewts(object):
                 if t == '\r' and i < lenstr and inputstr[i] == '\n':
                     i += 1
                     out += '\n'
-                continue # TODO: labelled
+                continue
             if t == '\ufeff' or t == '\u200b':
                 i += 1
-                continue # TODO: labelled
+                continue
             if not escape:
                 out += t
                 i += 1
-                continue # TODO: labelled
+                continue
             if t >= '\u0f00' and t <= '\u0fff':
                 c = formatHex(t)
                 out += c
                 i += 1
                 if self.tib_subjoined(t) != None or self.tib_vowel(t) != None or self.tib_final_wylie(t) != None:
                     self.warnl(warns, line, "Tibetan sign " + c + " needs a top symbol to attach to.")
-                continue # TODO: labelled
+                continue
             out += "["
             while self.tib_top(t) == None and (self.tib_other(t) == None or t == ' ') and t != '\r' and t != '\n':
                 if t == '[' or t == ']':
@@ -1260,19 +1262,11 @@ class pyewts(object):
         return out
 
     def formatHex(self, t):
-        sb = StringBuilder()
-        sb.append("\\u")
-        s = Integer.toHexString(int(t))
-        i = len(s)
-        while i < 4:
-            sb.append('0')
-            i += 1
-        sb.append(s)
-        return sb.__str__()
+        sb = "\\u%0.4x" % t
+        return sb
 
     def handleSpaces(self, inputstr, i, out):
         found = 0
-        orig_i = i
         while i < len(inputstr) and inputstr[i] == ' ':
             i += 1
             found += 1
@@ -1351,11 +1345,11 @@ class pyewts(object):
         t = inputstr[i]
         st.top = self.tib_top(t)
         if st.top is not None:
-            st.stack.append(self.tib_top(t))
+            st.stack.append(st.top)
         while i < lenstr:
             t = inputstr[i]
             o = None
-            if (t in self.m_tib_subjoined):
+            if t in self.m_tib_subjoined:
                 o = self.tib_subjoined(t)
                 i += 1
                 st.stack.append(o)
@@ -1363,7 +1357,7 @@ class pyewts(object):
                     st.warns.append("Subjoined sign \"" + o + "\" found after final sign \"" + ffinal + "\".")
                 elif len(st.vowels) > 0:
                     st.warns.append("Subjoined sign \"" + o + "\" found after vowel sign \"" + vowel + "\".")
-            elif (t in self.m_tib_vowel):
+            elif t in self.m_tib_vowel:
                 o = self.tib_vowel(t)
                 i += 1
                 st.vowels.append(o)
@@ -1371,7 +1365,7 @@ class pyewts(object):
                     vowel = o
                 if len(st.finals) > 0:
                     st.warns.append("Vowel sign \"" + o + "\" found after final sign \"" + ffinal + "\".")
-            elif (t in self.m_tib_final_wylie):
+            elif t in self.m_tib_final_wylie:
                 o = self.tib_final_wylie(t)
                 i += 1
                 klass = self.tib_final_class(t)
@@ -1427,11 +1421,11 @@ class pyewts(object):
 
     class ToWylieStack(object):
         top = None
-        stack = None
+        stack = []
         caret = bool()
-        vowels = None
-        finals = None
-        finals_found = None
+        vowels = []
+        finals = []
+        finals_found = {}
         visarga = bool()
         cons_str = None
         single_cons = None
@@ -1440,7 +1434,7 @@ class pyewts(object):
         suff2 = bool()
         dot = bool()
         tokens_used = int()
-        warns = None
+        warns = []
 
         def __init__(self):
             self.stack = []
@@ -1449,7 +1443,13 @@ class pyewts(object):
             self.finals_found = {}
             self.warns = []
 
+        def __str__(self):
+            return "top: %s stack: %s vowels %s finals %s finals_found %s cons_str %s" % (self.top, self.stack, self.vowels, self.finals, self.finals_found, self.cons_str)
+
     class ToWylieTsekbar(object):
         wylie = None
         tokens_used = int()
         warns = None
+
+        def __str__(self):
+            return "wylie: %s" % self.wylie
