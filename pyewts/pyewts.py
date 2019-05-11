@@ -1204,7 +1204,7 @@ class pyewts(object):
         inputstr = inputstr.replace("\u0f81", "\u0f71\u0f80")
         inputstr = inputstr.replace("\u0F75", "\u0F71\u0F74")
         inputstr = inputstr.replace("\u0F73", "\u0F71\u0F72")
-        i = 1
+        i = 0
         lenstr = len(inputstr)
         while i < lenstr:
             t = inputstr[i]
@@ -1340,9 +1340,17 @@ class pyewts(object):
         ffinal = None
         vowel = None
         klass = None
+        # split the stack into a ToWylieStack object:
+        # - top symbol
+        # - stacked signs (first is the top symbol again, then subscribed main
+        # characters...)
+        # - caret (did we find a stray tsa-phru or not?)
+        # - vowel signs (including small subscribed a-chung, "-i" Skt signs, etc)
+        # - final stuff (including anusvara, visarga, halanta...)
+        # - and some more variables to keep track of what has been found
         st = self.ToWylieStack()
-        i += 1
         t = inputstr[i]
+        i += 1
         st.top = self.tib_top(t)
         if st.top is not None:
             st.stack.append(st.top)
