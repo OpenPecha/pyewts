@@ -697,6 +697,15 @@ class pyewts(object):
     def tib_stack(self, s):
         return s in self.m_tib_stacks
 
+    def get_max_token_len(self, inputstr, i, lenval, maxlen):
+        while lenval > 1:
+            if i <= maxlen - lenval:
+                tr = inputstr[i : i + lenval]
+                if tr in self.m_tokens:
+                    return lenval
+            lenval -= 1
+        return 0
+
     #  split a string into Converter tokens; 
     #  make sure there is room for at least one null element at the end of the array
     def splitIntoTokens(self, inputstr):
@@ -706,19 +715,14 @@ class pyewts(object):
         maxlen = len(inputstr)
         while i < maxlen:
             c = inputstr[i]
-            mlo = self.m_tokens_start.get(c)
+            lenval = self.m_tokens_start.get(c)
             #  if there are multi-char tokens starting with this char, try them
-            if mlo != None:
-                lenval = int(mlo)
-                while lenval > 1:
-                    if i <= maxlen - lenval:
-                        tr = inputstr[i : i + lenval]
-                        if tr in self.m_tokens:
-                            tokens.append(tr)
-                            i += lenval
-                            lenval -= 1
-                            continue # TODO: was a named continue
-                    lenval -= 1
+            if lenval != None:
+                tokenlen = self.get_max_token_len(inputstr, i, lenval, maxlen)
+                if tokenlen > 0:
+                    tokens.append(inputstr[i : i + tokenlen])
+                    i += tokenlen
+                    continue
             #  things starting with backslash are special
             if c == '\\' and i <= maxlen - 2:
                 if inputstr[i + 1] == 'u' and i <= maxlen - 6:
@@ -849,7 +853,7 @@ class pyewts(object):
                 units += 1
                 #  collapse multiple spaces?
                 if t == " " and self.fix_spacing:
-                    while tokens[i] != None and tokens[i] == " ":
+                    while i < lentokens and tokens[i] == " ":
                         i += 1
                 continue # TODO: label ITER
             if self.vowel(t) != None or self.consonant(t) != None:
