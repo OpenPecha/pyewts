@@ -989,7 +989,7 @@ class pyewts(object):
                         if t2 == "l" and consonants > 1:
                             break
                         if self.check_strict and not plus:
-                            prev = consonantStringBackwards(tokens, i-1, orig_i)
+                            prev = self.consonantStringBackwards(tokens, i-1, orig_i)
                             if not self.subscript(t2, prev):
                                 prev = prev.replace("+", "")
                                 warns.append("Subjoined \"" + t2 + "\" not expected after \"" + prev + "\".")
@@ -1009,7 +1009,7 @@ class pyewts(object):
             if caret > 0:
                 if caret > 1:
                     warns.append("Cannot have more than one \"^\" applied to the same stack.")
-                final_found.put(self.final_class("^"), "^")
+                final_found[self.final_class("^")] = "^"
                 out += self.final_uni("^")
                 caret = 0
             t = tokens[i] if i < lentokens else None
@@ -1043,12 +1043,12 @@ class pyewts(object):
             uni = self.final_uni(t)
             klass = self.final_class(t)
             if klass in final_found:
-                if final_found.get(klass) == t:
+                if final_found[klass] == t:
                     warns.append("Cannot have two \"" + t + "\" applied to the same stack.")
                 else:
-                    warns.append("Cannot have \"" + t + "\" and \"" + final_found.get(klass) + "\" applied to the same stack.")
+                    warns.append("Cannot have \"" + t + "\" and \"" + final_found[klass] + "\" applied to the same stack.")
             else:
-                final_found.put(klass, t)
+                final_found[klass] = t
                 out += uni
             i += 1
             single_consonant = None
@@ -1128,13 +1128,13 @@ class pyewts(object):
             elif state == self.State.MAIN:
                 warns.append("Expected vowel after \"" + stack.single_consonant + "\".")
             elif state == self.State.SUFF1:
-                consonants.add(stack.single_consonant)
+                consonants.append(stack.single_consonant)
                 if self.check_strict:
                     if not self.isSuffix(stack.single_consonant):
                         warns.append("Invalid suffix consonant: \"" + stack.single_consonant + "\".")
                 state = self.State.SUFF2
             elif state == self.State.SUFF2:
-                consonants.add(stack.single_consonant)
+                consonants.append(stack.single_consonant)
                 if self.isSuff2(stack.single_consonant):
                     if not self.suff2(stack.single_consonant, prev_cons):
                         warns.append("Second suffix \"" + stack.single_consonant + "\" does not occur after \"" + prev_cons + "\".")
@@ -1320,7 +1320,7 @@ class pyewts(object):
                 ztr += st.single_cons
             root = self.ambiguous_key(ztr)
             if root == None:
-                warns.add("Ambiguous syllable found: root consonant not known for \"" + ztr + "\".")
+                self.warn(warns, "Ambiguous syllable found: root consonant not known for \"" + ztr + "\".")
                 root = 1
             stacks[root].prefix = stacks[root].suffix = False
             stacks[root+1].suff2 = False
@@ -1385,10 +1385,10 @@ class pyewts(object):
                     st.finals.append(o)
                     if ffinal == None:
                         ffinal = o
-                    if st.finals_found.containsKey(klass):
+                    if klass in st.finals_found:
                         st.warns.append("Final sign \"" + o + "\" should not combine with found after final sign \"" + ffinal + "\".")
                     else:
-                        st.finals_found.put(klass, o)
+                        st.finals_found[klass] = o
             else:
                 break
         if st.top == "a" and len(st.stack) == 1 and len(st.vowels) > 0:
