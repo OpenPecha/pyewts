@@ -1259,6 +1259,7 @@ class pyewts(object):
                     out += formatHex(t)
                 else:
                     out += t
+                i += 1
                 if i >= lenstr:
                     break
                 t = inputstr[i]
@@ -1313,7 +1314,7 @@ class pyewts(object):
                 stacks[0].prefix = True
         if len(stacks) > 1 and stacks[last].single_cons != None and self.isSuffix(stacks[last].single_cons):
             stacks[last].suffix = True
-        if len(stacks) > 2 and stacks[last].single_cons != None and stacks[last-1].single_cons != None and self.isSuffix(stacks[last-1].single_cons) and self.suff2(stacks.get[last].single_cons, stacks[last-1].single_cons):
+        if len(stacks) > 2 and stacks[last].single_cons != None and stacks[last-1].single_cons != None and self.isSuffix(stacks[last-1].single_cons) and self.suff2(stacks[last].single_cons, stacks[last-1].single_cons):
             stacks[last].suff2 = True
             stacks[last-1].suffix = True
         if len(stacks) == 2 and stacks[0].prefix and stacks[1].suffix:
