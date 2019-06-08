@@ -12,7 +12,9 @@ print(warns)
 
 print(converter.toWylie("བ་བྦཀཱྀ་ཀཱ"))
 
-print(converter.toWylie("རབ་ཏུ་འབྱུང་བའི་གཞི་རྫོགས་སྷོ"))
+print(converter.toWylie("རིགས"))
+
+print(converter.toWylie("བའམ"))
 
 print(converter.toWylie("In Chinese"))
 

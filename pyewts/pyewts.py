@@ -662,7 +662,7 @@ class pyewts(object):
     def suff2(self, suff, before):
         if suff not in self.m_suff2:
             return False
-        return before in self.m_suff2
+        return before in self.m_suff2[suff]
 
     def ambiguous_key(self, syll):
         return self.m_ambiguous_key.get(syll)
@@ -1143,7 +1143,7 @@ class pyewts(object):
                     if not self.suff2(stack.single_consonant, prev_cons):
                         warns.append("Second suffix \"" + stack.single_consonant + "\" does not occur after \"" + prev_cons + "\".")
                 else:
-                    if not self.m_affixedsuff2.contains(stack.single_consonant) or not prev_cons == "'":
+                    if stack.single_consonant not in self.m_affixedsuff2 or not prev_cons == "'":
                         warns.append("Invalid 2nd suffix consonant: \"" + stack.single_consonant + "\".")
                 state = self.State.NONE
             elif state == self.State.NONE:
@@ -1435,18 +1435,18 @@ class pyewts(object):
     class ToWylieStack(object):
         top = None
         stack = []
-        caret = bool()
+        caret = False
         vowels = []
         finals = []
         finals_found = {}
-        visarga = bool()
+        visarga = False
         cons_str = None
         single_cons = None
-        prefix = bool()
-        suffix = bool()
-        suff2 = bool()
-        dot = bool()
-        tokens_used = int()
+        prefix = False
+        suffix = False
+        suff2 = False
+        dot = False
+        tokens_used = 0
         warns = []
 
         def __init__(self):
@@ -1457,7 +1457,7 @@ class pyewts(object):
             self.warns = []
 
         def __str__(self):
-            return "top: %s stack: %s vowels %s finals %s finals_found %s cons_str %s" % (self.top, self.stack, self.vowels, self.finals, self.finals_found, self.cons_str)
+            return "top: %s stack: %s vowels %s finals %s finals_found %s cons_str %s suffix %s suff2 %s" % (self.top, self.stack, self.vowels, self.finals, self.finals_found, self.cons_str, self.suffix, self.suff2)
 
     class ToWylieTsekbar(object):
         wylie = None
