@@ -20,12 +20,12 @@ setup(
     description="Python utils for EWTS conversion from / to Unicode",
     license="Apache2",
     keywords="tibetan",
-    url="https://github.com/eroux/pyewts",
+    url="https://github.com/Esukhia/pyewts",
     packages=find_packages(),
     long_description=read('README.md'),
     project_urls={
-        'Source': 'https://github.com/eroux/pyewts',
-        'Tracker': 'https://github.com/eroux/pyewts/issues',
+        'Source': 'https://github.com/Esukhia/pyewts',
+        'Tracker': 'https://github.com/Esukhia/pyewts/issues',
     },
     classifiers=[
         "Development Status :: 3 - Alpha",
