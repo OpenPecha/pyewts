@@ -4,15 +4,15 @@
 from __future__ import print_function
 
 import os
-import sys
-from setuptools import setup, find_packages
-import pypandoc
+import setuptools
+from pkg_resources import parse_version
+
+assert(parse_version(setuptools.__version__) >= parse_version("38.6.0"))
 
 def read(fname):
-    rst = pypandoc.convert_file(os.path.join(os.path.dirname(__file__), fname), 'rst', format='md')
-    return rst
+    return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
-setup(
+setuptools.setup(
     name="pyewts",
     version="0.1.0",  #edit version in __init__.py
     author="Esukhia development team",
@@ -21,8 +21,9 @@ setup(
     license="Apache2",
     keywords="tibetan",
     url="https://github.com/Esukhia/pyewts",
-    packages=find_packages(),
+    packages=setuptools.find_packages(),
     long_description=read('README.md'),
+    long_description_content_type="text/markdown",
     project_urls={
         'Source': 'https://github.com/Esukhia/pyewts',
         'Tracker': 'https://github.com/Esukhia/pyewts/issues',
@@ -37,5 +38,5 @@ setup(
         "License :: OSI Approved :: Apache Software License",
         "Natural Language :: Tibetan"
     ],
-    python_requires='>=3',
+    python_requires='>=3.4'
 )
