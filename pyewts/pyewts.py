@@ -960,7 +960,7 @@ class pyewts(object):
             t2 = tokens[i+1]
         if t2 != None and self.isSuperscript(t) and self.superscript(t, t2):
             if self.check_strict:
-                next = consonantString(tokens, i + 1)
+                next = self.consonantString(tokens, i + 1)
                 if not self.superscript(t, next):
                     next = next.replace("+", "")
                     warns.append("Superscript \"" + t + "\" does not occur above combination \"" + next + "\".")
@@ -1111,11 +1111,11 @@ class pyewts(object):
             if not self.check:
                 continue 
             if state == self.State.PREFIX and stack.single_consonant != None:
-                consonants.add(stack.single_consonant)
+                consonants.append(stack.single_consonant)
                 if self.isPrefix(stack.single_consonant):
                     next = t
                     if self.check_strict:
-                        next = consonantString(tokens, i)
+                        next = self.consonantString(tokens, i)
                     if next != None and not self.prefix(stack.single_consonant, next):
                         next = next.replace("+", "")
                         warns.append("Prefix \"" + stack.single_consonant + "\" does not occur before \"" + next + "\".")
