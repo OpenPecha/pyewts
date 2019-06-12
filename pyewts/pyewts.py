@@ -1173,12 +1173,11 @@ class pyewts(object):
     def consonantString(self, tokens, i):
         out = []
         t = None
-        i += 1
-        while i<len(tokens):
+        while i < len(tokens):
             t = tokens[i]
             i += 1
             if t == "+" or t == "^":
-                continue 
+                continue
             if self.consonant(t) == None:
                 break
             out.append(t)
@@ -1187,12 +1186,11 @@ class pyewts(object):
     def consonantStringBackwards(self, tokens, i, orig_i):
         out = []
         t = None
-        i -= 1
         while i >= orig_i and tokens[i] != None:
             t = tokens[i]
             i -= 1
             if t == "+" or t == "^":
-                continue 
+                continue
             if self.consonant(t) == None:
                 break
             out.insert(0,t)
