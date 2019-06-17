@@ -1242,7 +1242,7 @@ class pyewts(object):
                 i += 1
                 continue
             if t >= '\u0f00' and t <= '\u0fff':
-                c = formatHex(t)
+                c = self.formatHex(t)
                 out += c
                 i += 1
                 if self.tib_subjoined(t) != None or self.tib_vowel(t) != None or self.tib_final_wylie(t) != None:
@@ -1254,7 +1254,7 @@ class pyewts(object):
                     out += "\\"
                     out += t
                 elif t >= '\u0f00' and t <= '\u0fff':
-                    out += formatHex(t)
+                    out += self.formatHex(t)
                 else:
                     out += t
                 i += 1
@@ -1265,7 +1265,7 @@ class pyewts(object):
         return out
 
     def formatHex(self, t):
-        sb = "\\u%0.4x" % t
+        sb = "\\u%0.4x" % ord(t)
         return sb
 
     def handleSpaces(self, inputstr, i, out):

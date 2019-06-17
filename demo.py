@@ -12,7 +12,7 @@ res = converter.toUnicode(orig, warns)
 print(res)
 print(warns)
 
-print(converter.toWylie("བ་བྦཀཱྀ་ཀཱ"))
+print(converter.toWylie("བ་བྦཀཱྀ་ཀཱ ༜"))
 
 print(converter.toWylie("རིགས"))
 
