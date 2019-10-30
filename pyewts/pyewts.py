@@ -583,7 +583,7 @@ class pyewts(object):
     def initWylie(self, check, check_strict, print_warnings, fix_spacing, mode):
         #  check_strict requires check
         if check_strict and not check:
-            raise RuntimeException("check_strict requires check.")
+            raise RuntimeError("check_strict requires check.")
         self.check = check
         self.check_strict = check_strict
         self.print_warnings = print_warnings
