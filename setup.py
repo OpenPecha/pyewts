@@ -14,7 +14,7 @@ def read(fname):
 
 setuptools.setup(
     name="pyewts",
-    version="0.1.1",  #edit version in __init__.py
+    version="0.1.2",  #edit version in __init__.py
     author="Esukhia development team",
     author_email="esukhiadev@gmail.com",
     description="Python utils for EWTS conversion from / to Unicode",
