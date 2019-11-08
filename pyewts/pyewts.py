@@ -266,7 +266,7 @@ class pyewts(object):
         "<": "\u0f3a",
         ">": "\u0f3b",
         "(": "\u0f3c",
-        ",": "\u0f3d",
+        ")": "\u0f3d",
         "@": "\u0f04",
         "#": "\u0f05",
         "$": "\u0f06",
@@ -1158,7 +1158,7 @@ class pyewts(object):
                 cc = cc.replace('\u2018', '\'')
                 cc = cc.replace('\u2019', '\'')
                 expect_key = self.ambiguous_key(cc)
-                if expect_key != None and expect_key.intValue() != root_idx:
+                if expect_key != None and int(expect_key) != root_idx:
                     warns.append("Syllable should probably be \"" + self.ambiguous_wylie(cc) + "\".")
         ret = self.WylieTsekbar()
         ret.uni_string = out
