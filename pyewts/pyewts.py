@@ -284,10 +284,10 @@ class pyewts(object):
     m_subscripts = {
         "y": ["k","kh","g","p","ph","b","m","r+k","r+g","r+m","s+k","s+g","s+p","s+b","s+m"],
         "r": ["k","kh","g","t","th","d","n","p","ph","b","m","sh","s","h","dz","s+k","s+g","s+p","s+b","s+m","s+n"],
-        "l": ["k","g","b","r","s","z"]
+        "l": ["k","g","b","r","s","z"],
+        "w": ["k","kh","g","c","ny","t","d","ts","tsh","zh","z","r","l","sh","s","h","g+r","d+r","ph+y","r+g","r+ts"],
     }
     m_prefixes = {
-        "w": ["k","kh","g","c","ny","t","d","ts","tsh","zh","z","r","l","sh","s","h","g+r","d+r","ph+y","r+g","r+ts"],
         "g": ["c","ny","t","d","n","ts","zh","z","y","sh","s"],
         "d": ["k","g","ng","p","b","m","k+y","g+y","p+y","b+y","m+y","k+r","g+r","p+r","b+r"],
         "b": ["k","g","c","t","d","ts","zh","z","sh","s","r","l","k+y","g+y","k+r","g+r","r+l","s+l","r+k","r+g","r+ng",
