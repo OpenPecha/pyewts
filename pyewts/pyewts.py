@@ -266,7 +266,7 @@ class pyewts(object):
         "<": "\u0f3a",
         ">": "\u0f3b",
         "(": "\u0f3c",
-        ",": "\u0f3d",
+        ")": "\u0f3d",
         "@": "\u0f04",
         "#": "\u0f05",
         "$": "\u0f06",
@@ -284,10 +284,10 @@ class pyewts(object):
     m_subscripts = {
         "y": ["k","kh","g","p","ph","b","m","r+k","r+g","r+m","s+k","s+g","s+p","s+b","s+m"],
         "r": ["k","kh","g","t","th","d","n","p","ph","b","m","sh","s","h","dz","s+k","s+g","s+p","s+b","s+m","s+n"],
-        "l": ["k","g","b","r","s","z"]
+        "l": ["k","g","b","r","s","z"],
+        "w": ["k","kh","g","c","ny","t","d","ts","tsh","zh","z","r","l","sh","s","h","g+r","d+r","ph+y","r+g","r+ts"],
     }
     m_prefixes = {
-        "w": ["k","kh","g","c","ny","t","d","ts","tsh","zh","z","r","l","sh","s","h","g+r","d+r","ph+y","r+g","r+ts"],
         "g": ["c","ny","t","d","n","ts","zh","z","y","sh","s"],
         "d": ["k","g","ng","p","b","m","k+y","g+y","p+y","b+y","m+y","k+r","g+r","p+r","b+r"],
         "b": ["k","g","c","t","d","ts","zh","z","sh","s","r","l","k+y","g+y","k+r","g+r","r+l","s+l","r+k","r+g","r+ng",
@@ -583,7 +583,7 @@ class pyewts(object):
     def initWylie(self, check, check_strict, print_warnings, fix_spacing, mode):
         #  check_strict requires check
         if check_strict and not check:
-            raise RuntimeException("check_strict requires check.")
+            raise RuntimeError("check_strict requires check.")
         self.check = check
         self.check_strict = check_strict
         self.print_warnings = print_warnings
@@ -960,7 +960,7 @@ class pyewts(object):
             t2 = tokens[i+1]
         if t2 != None and self.isSuperscript(t) and self.superscript(t, t2):
             if self.check_strict:
-                next = consonantString(tokens, i + 1)
+                next = self.consonantString(tokens, i + 1)
                 if not self.superscript(t, next):
                     next = next.replace("+", "")
                     warns.append("Superscript \"" + t + "\" does not occur above combination \"" + next + "\".")
@@ -1111,11 +1111,11 @@ class pyewts(object):
             if not self.check:
                 continue 
             if state == self.State.PREFIX and stack.single_consonant != None:
-                consonants.add(stack.single_consonant)
+                consonants.append(stack.single_consonant)
                 if self.isPrefix(stack.single_consonant):
                     next = t
                     if self.check_strict:
-                        next = consonantString(tokens, i)
+                        next = self.consonantString(tokens, i)
                     if next != None and not self.prefix(stack.single_consonant, next):
                         next = next.replace("+", "")
                         warns.append("Prefix \"" + stack.single_consonant + "\" does not occur before \"" + next + "\".")
@@ -1158,7 +1158,7 @@ class pyewts(object):
                 cc = cc.replace('\u2018', '\'')
                 cc = cc.replace('\u2019', '\'')
                 expect_key = self.ambiguous_key(cc)
-                if expect_key != None and expect_key.intValue() != root_idx:
+                if expect_key != None and int(expect_key) != root_idx:
                     warns.append("Syllable should probably be \"" + self.ambiguous_wylie(cc) + "\".")
         ret = self.WylieTsekbar()
         ret.uni_string = out
@@ -1173,12 +1173,11 @@ class pyewts(object):
     def consonantString(self, tokens, i):
         out = []
         t = None
-        i += 1
-        while i<len(tokens):
+        while i < len(tokens):
             t = tokens[i]
             i += 1
             if t == "+" or t == "^":
-                continue 
+                continue
             if self.consonant(t) == None:
                 break
             out.append(t)
@@ -1187,12 +1186,11 @@ class pyewts(object):
     def consonantStringBackwards(self, tokens, i, orig_i):
         out = []
         t = None
-        i -= 1
         while i >= orig_i and tokens[i] != None:
             t = tokens[i]
             i -= 1
             if t == "+" or t == "^":
-                continue 
+                continue
             if self.consonant(t) == None:
                 break
             out.insert(0,t)
@@ -1244,7 +1242,7 @@ class pyewts(object):
                 i += 1
                 continue
             if t >= '\u0f00' and t <= '\u0fff':
-                c = formatHex(t)
+                c = self.formatHex(t)
                 out += c
                 i += 1
                 if self.tib_subjoined(t) != None or self.tib_vowel(t) != None or self.tib_final_wylie(t) != None:
@@ -1256,7 +1254,7 @@ class pyewts(object):
                     out += "\\"
                     out += t
                 elif t >= '\u0f00' and t <= '\u0fff':
-                    out += formatHex(t)
+                    out += self.formatHex(t)
                 else:
                     out += t
                 i += 1
@@ -1267,7 +1265,7 @@ class pyewts(object):
         return out
 
     def formatHex(self, t):
-        sb = "\\u%0.4x" % t
+        sb = "\\u%0.4x" % ord(t)
         return sb
 
     def handleSpaces(self, inputstr, i, out):
