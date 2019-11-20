@@ -500,7 +500,7 @@ class pyewts(object):
         '\u0f3a': "<",
         '\u0f3b': ">",
         '\u0f3c': "(",
-        '\u0f3d': ","
+        '\u0f3d': ")"
     }
     #  all these stacked consonant combinations don't need "+"s in them
     m_tib_stacks = ["b+l","b+r","b+y","c+w","d+r","d+r+w","d+w","dz+r","g+l","g+r","g+r+w",
