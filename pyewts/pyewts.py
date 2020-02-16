@@ -887,7 +887,7 @@ class pyewts(object):
                 out += t
                 i += 1
                 if self.fix_spacing:
-                    while tokens[i] != None and tokens[i] == " ":
+                    while len(tokens) > i and tokens[i] == " ":
                         i+=1
                 continue  # TODO: label ITER
             c = t[0]
@@ -967,7 +967,7 @@ class pyewts(object):
             out += self.consonant(t)
             consonants += 1
             i += 1
-            while tokens[i] != None and tokens[i] == "^":
+            while len(tokens) > i and tokens[i] == "^":
                 caret += 1
                 i += 1
         while True:
@@ -1088,7 +1088,6 @@ class pyewts(object):
 
     def toUnicodeOneTsekbar(self, tokens, i):
         orig_i = i
-        t = tokens[i]
         stack = None
         prev_cons = None
         visarga = False
@@ -1099,6 +1098,7 @@ class pyewts(object):
         warns = []
         state = self.State.PREFIX
         lentokens = len(tokens)
+        t = tokens[i] if i < lentokens else None
         while t != None and (self.vowel(t) != None or self.consonant(t) != None) and not visarga:
             if stack != None:
                 prev_cons = stack.single_consonant
@@ -1186,7 +1186,7 @@ class pyewts(object):
     def consonantStringBackwards(self, tokens, i, orig_i):
         out = []
         t = None
-        while i >= orig_i and tokens[i] != None:
+        while i >= orig_i and i > len(tokens):
             t = tokens[i]
             i -= 1
             if t == "+" or t == "^":
