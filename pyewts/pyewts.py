@@ -591,19 +591,19 @@ class pyewts(object):
         self.mode = mode
 
     # 
-    # 	* Default constructor, sets the following defaults:
-    # 	*  
-    # 	* @param check
-    # 	* generate warnings for illegal consonant sequences
-    # 	* @param check_strict
-    # 	* stricter checking, examine the whole stack
-    # 	* @param print_warnings
-    # 	* print generated warnings to stdout
-    # 	* @param fix_spacing
-    # 	* remove spaces after newlines, collapse multiple tseks into one, etc.
-    # 	* @param mode
-    # 	* one of WYLIE, EWTS, ALALC, DTS and ACIP
-    # 	
+    #   * Default constructor, sets the following defaults:
+    #   *  
+    #   * @param check
+    #   * generate warnings for illegal consonant sequences
+    #   * @param check_strict
+    #   * stricter checking, examine the whole stack
+    #   * @param print_warnings
+    #   * print generated warnings to stdout
+    #   * @param fix_spacing
+    #   * remove spaces after newlines, collapse multiple tseks into one, etc.
+    #   * @param mode
+    #   * one of WYLIE, EWTS, ALALC, DTS and ACIP
+    #   
     def __init__(self, check=True, check_strict=True, print_warnings=False, fix_spacing=True, mode=Mode.EWTS):
         self.initWylie(check, check_strict, print_warnings, fix_spacing, mode)
 
@@ -744,18 +744,18 @@ class pyewts(object):
         return tokens
 
     # 
-    # 	 * Adjusts the input string based on the idea that people often are sloppy when writing
-    # 	 * Wylie and use ' ' instead of '_' when a space is actually meant in the output. This is
-    # 	 * written is a really simple brute force way to avoid issues of which regex's are supported
-    # 	 * in Javascript when translated via GWT. This routine does not handle the case of " /" which
-    # 	 * requires more care to accomodate "ng /" and "ngi /" and so on which are intentional since 
-    # 	 * a tsheg is required in these cases. Also it is not feasible to handle "g " for a final "ga"
-    # 	 * at the end of a phrase where the '/' is usually omitted in favor of the descender on the
-    # 	 * "ga". Detecting this is non-trivial.
-    # 	 * 
-    # 	 * @param str String to be normalized
-    # 	 * @return normalized String
-    # 	 
+    #    * Adjusts the input string based on the idea that people often are sloppy when writing
+    #    * Wylie and use ' ' instead of '_' when a space is actually meant in the output. This is
+    #    * written is a really simple brute force way to avoid issues of which regex's are supported
+    #    * in Javascript when translated via GWT. This routine does not handle the case of " /" which
+    #    * requires more care to accomodate "ng /" and "ngi /" and so on which are intentional since 
+    #    * a tsheg is required in these cases. Also it is not feasible to handle "g " for a final "ga"
+    #    * at the end of a phrase where the '/' is usually omitted in favor of the descender on the
+    #    * "ga". Detecting this is non-trivial.
+    #    * 
+    #    * @param str String to be normalized
+    #    * @return normalized String
+    #    
     @classmethod
     def normalizeSloppyWylie(cls, inputstr):
         for k, v in cls.repls:
@@ -822,7 +822,7 @@ class pyewts(object):
             if t == "[":
                 # label ESC
                 finished = False
-                while i<lentokens:
+                while i+1<lentokens:
                     i += 1
                     t = tokens[i]
                     if t == "]":
@@ -1186,7 +1186,7 @@ class pyewts(object):
     def consonantStringBackwards(self, tokens, i, orig_i):
         out = []
         t = None
-        while i >= orig_i and i > len(tokens):
+        while i >= orig_i and i < len(tokens):
             t = tokens[i]
             i -= 1
             if t == "+" or t == "^":
