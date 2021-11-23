@@ -1,4 +1,4 @@
-# Python EWTS converter
+# Python Tibetan Wylie (EWTS) converter
 
 ## Description
 
