@@ -20,7 +20,7 @@ See [CHANGELOG.md](CHANGELOG.md).
 
 The Python code is Copyright (C) 2018 Esukhia, provided under [MIT License](LICENSE). See [CONTRIBUTORS.md](CONTRIBUTORS.md) for a list of authors and contributors.
 
-## Maintainance
+## Maintenance
 
 Build the source dist:
 
