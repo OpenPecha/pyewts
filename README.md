@@ -6,7 +6,9 @@ The goal of this code is to provide a library to convert back and forth between 
 
 ## Installation
 
-This library should appear soon enough on pip.
+```bash
+pip install pyewts
+```
 
 ## Example
 
