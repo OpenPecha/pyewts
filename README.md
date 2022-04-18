@@ -12,6 +12,21 @@ pip install pyewts
 
 ## Example
 
+Convert Wylie to Unicode
+```python
+import pyewts
+
+converter = pyewts.pyewts()
+print(converter.toUnicode("ba b+ba [a] ba\\u0f0b"))
+# བ་བྦ་a་བ་
+```
+
+Convert Unicode to Wylie
+```python
+print(converter.toWylie("༼༽"))
+# ()
+```
+
 See [demo.py](demo.py)
 
 ## Changes
