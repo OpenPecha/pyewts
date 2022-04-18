@@ -27,6 +27,46 @@ print(converter.toWylie("༼༽"))
 # ()
 ```
 
+Catch Wylie warnings
+```python
+>>> orig = """dangs
+... zhwa
+... dwang
+... rma
+... tshe
+... phywa
+... dge
+... rgya
+... dwags
+... (rtse mgron)"""
+>>> 
+>>> print(orig)
+dangs
+zhwa
+dwang
+rma
+tshe
+phywa
+dge
+rgya
+dwags
+(rtse mgron)
+>>> warns = []
+>>> res = converter.toUnicode(orig, warns)
+>>> print(res)
+དངས
+ཞྭ
+དྭང
+རྨ
+ཚེ
+ཕྱྭ
+དགེ
+རྒྱ
+དྭགས
+༼རྩེ་མགྲོན༽
+>>> print(warns)
+['line 1: "dangs": Syllable should probably be "dngas".']
+```
 See [demo.py](demo.py)
 
 ## Changes
