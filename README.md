@@ -4,10 +4,10 @@
   <br>
 </h1>
 
-<h3 align="center">Template</h3>
+<h3 align="center">Python Tibetan Unicode to Wylie (EWTS) Converter</h3>
 
+<!-- Replace the title of the repository -->
 
-<!-- Python Tibetan Unicode to Wylie (EWTS) converter -->
 
 <p align="center">
   <a href="#description">Description</a> •
