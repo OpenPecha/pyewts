@@ -24,6 +24,8 @@
 
 The goal of this code is to provide a library to convert back and forth between Tibetan Unicode and [EWTS](http://www.thlib.org/reference/transliteration/#!essay=/thl/ewts/). The code is adapted from Java [ewts-converter](https://github.com/buda-base/ewts-converter).
 
+It also provides a conversion from the [ACIP Transliteration](https://web.archive.org/web/20080828031427/http://www.asianclassics.org/download/tibetancode/ticode.pdf) to EWTS.
+
 <!-- This section provides a high-level overview for the repo -->
 
 
