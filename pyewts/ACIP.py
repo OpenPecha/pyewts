@@ -16,7 +16,6 @@ def ACIPtoEWTS(s):
     s = s.replace("/", "") # for leftover /
     # simple substitutions
     s = s.replace(";", "|")
-    s = s.replace("-", ".")
     s = s.replace("#", "@##")
     s = s.replace("*", "@#")
     s = s.replace("\\", "?")
@@ -27,6 +26,10 @@ def ACIPtoEWTS(s):
     s = s.replace("V", "W")
     s = s.replace("TS", "TSH")
     s = s.replace("TZ", "TS") 
+    # - => .
+    # GA-YAS is not the canonical form but is commonly found
+    s = re.sub(r"([BCDGHJKLMNPRSTVYZhdtn])A-", r"\1.", s)
+    s = s.replace("-", ".")
     #   - i => -I (we will reverse the case later)
     s = re.sub(r"A?i", "-I", s)
     #   - 'i => -i (but 'i was turned into '-I by previous substitution)
@@ -73,6 +76,7 @@ def testACIPtoEWTS():
     test_assert("AA:", "aH")
     test_assert("A'A:", "AH")
     test_assert("G-YAS", "g.yas")
+    test_assert("GA-YAS", "g.yas")
     test_assert("ZHVA", "zhwa")
     test_assert("L'i", "l-I")
     test_assert("AEE", "ai")
