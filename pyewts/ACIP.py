@@ -59,7 +59,7 @@ def ACIPtoEWTS(s):
     return s
 
 # standard Tibetan roots (what's before the vowel), with an adjustment: all can take r, y or w or any combination at the end
-STD_TIB_PATTERN = re.compile(r"(bgl|dm|sm|sn|kl|dk|bk|bkl|rk|lk|sk|brk|bsk|kh|mkh|'kh|gl|dg|bg|mg|'g|rg|lg|sg|brg|bsg|ng|dng|mng|rng|lng|sng|brng|bsng|gc|bc|lc|ch|mch|'ch|mj|'j|rj|lj|brj|ny|gny|mny|rny|sny|brny|bsny|gt|bt|rt|lt|st|brt|blt|bst|th|mth|'th|gd|bd|md|'d|rd|ld|sd|brd|bld|bsd|gn|mn|rn|brn|bsn|dp|lp|sp|ph|'ph|bl|db|'b|rb|lb|sb|rm|ts|gts|bts|rts|sts|brts|bsts|tsh|mtsh|'tsh|dz|mdz|'dz|rdz|brdz|zh|gzh|bzh|zl|gz|bz|bzl|rl|brl|sh|gsh|bsh|sl|gs|bs|bsl|lh)[rwy]*")
+STD_TIB_PATTERN = re.compile(r"([bcdgjklm'npstzhSDTN]|bgl|dm|sm|sn|kl|dk|bk|bkl|rk|lk|sk|brk|bsk|kh|mkh|'kh|gl|dg|bg|mg|'g|rg|lg|sg|brg|bsg|ng|dng|mng|rng|lng|sng|brng|bsng|gc|bc|lc|ch|mch|'ch|mj|'j|rj|lj|brj|ny|gny|mny|rny|sny|brny|bsny|gt|bt|rt|lt|st|brt|blt|bst|th|mth|'th|gd|bd|md|'d|rd|ld|sd|brd|bld|bsd|gn|mn|rn|brn|bsn|dp|lp|sp|ph|'ph|bl|db|'b|rb|lb|sb|rm|ts|gts|bts|rts|sts|brts|bsts|tsh|mtsh|'tsh|dz|mdz|'dz|rdz|brdz|zh|gzh|bzh|zl|gz|bz|bzl|rl|brl|sh|gsh|bsh|sl|gs|bs|bsl|lh)[rwy]*")
 
 STD_TIB_STACKS_PREFIX = [
     "bg",
@@ -140,7 +140,7 @@ STD_TIB_STACKS_PREFIX = [
 ]
 
 C_TOKEN_PATTERN = re.compile(r"zh|ny|dz|ts|tsh|ch|ph|th|sh|Sh|kh|ng|[bcdghjklmnprstwyz']")
-CONSONNANTS_PATTERN = re.compile(r"[bcdgjklm'nprstvyzhSDTN]+")
+CONSONNANTS_PATTERN = re.compile(r"([bcdgjklm'nprstwyzhSDTN]+)([aeiouAEIOU.-])") # we only check the consonnants before a vowel
 
 STD_TIB_STACKS_PREFIX_TOKENS = []
 for s in STD_TIB_STACKS_PREFIX:
@@ -161,7 +161,7 @@ def add_plus_to_consonnants(c):
 
 def add_plus(src):
     # for all matches of bcdgjklm'nprstvyzhSDTN
-    return CONSONNANTS_PATTERN.sub(lambda x: add_plus_to_consonnants(x.group(0)), src)
+    return CONSONNANTS_PATTERN.sub(lambda x: add_plus_to_consonnants(x.group(1))+x.group(2), src)
 
 
 def test_assert(orig, expected):
@@ -173,6 +173,7 @@ def testACIPtoEWTS():
     test_assert("KA(BA)CA()BA[ABC]BA@001A BA", "kabacabababa")
     test_assert("KA/BA/CA//DA/", "ka(ba)ca()da")
     test_assert("A'I", "I")
+    test_assert("^", "\\u0f38")
     test_assert("Ai", "-i")
     test_assert("A'i", "-I")
     test_assert("B'I", "bI")
@@ -188,6 +189,10 @@ def testACIPtoEWTS():
     test_assert("L'i", "l-I")
     test_assert("AEE", "ai")
     test_assert("KEEm", "kaiM")
+    test_assert("DRA", "dra")
+    test_assert("BSGRUBS", "bsgrubs")
+    test_assert("BSGRVUBS", "bsgrwubs")
+    test_assert("KHAMS", "khams")
     test_assert("ARTHA", "ar+tha")
     test_assert("DHA KshA", "d+ha k+Sha")
     test_assert("TSA TZA", "tsha tsa")
