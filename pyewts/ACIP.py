@@ -193,6 +193,7 @@ def testACIPtoEWTS():
     test_assert("KEEm", "kaiM")
     test_assert("DRA", "dra")
     test_assert("PAndI", "paN+Di")
+    test_assert("PAn+dI T+SA", "paN+Di t+sa")
     test_assert("BSGRUBS", "bsgrubs")
     test_assert("BSGRVUBS", "bsgrwubs")
     test_assert("KHAMS", "khams")
