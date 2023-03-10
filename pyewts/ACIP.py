@@ -47,6 +47,8 @@ def ACIPtoEWTS(s):
     s = re.sub(r"A([AEIOUaeiou])", r"\1", s)
     #   - sh => sH
     s = s.replace("sh", "sH")
+    # normalize apostrophes
+    s = re.sub(r"[’ʼʹ‘ʾ]", "'", s)
     #   - inverse case
     s = s.swapcase()
     #   - ee => ai
@@ -139,7 +141,7 @@ STD_TIB_STACKS_PREFIX = [
     "bsl"
 ]
 
-C_TOKEN_PATTERN = re.compile(r"zh|ny|dz|ts|tsh|ch|ph|th|sh|Sh|kh|ng|[bcdghjklmnprstwyz']")
+C_TOKEN_PATTERN = re.compile(r"zh|ny|dz|ts|tsh|ch|ph|th|sh|Sh|kh|ng|[NDTRYWbcdghjklmnprstwyz']")
 CONSONNANTS_PATTERN = re.compile(r"([bcdgjklm'nprstwyzhSDTN]+)([aeiouAEIOU.-])") # we only check the consonnants before a vowel
 
 STD_TIB_STACKS_PREFIX_TOKENS = []
@@ -177,7 +179,7 @@ def testACIPtoEWTS():
     test_assert("Ai", "-i")
     test_assert("A'i", "-I")
     test_assert("B'I", "bI")
-    test_assert("'I 'OD", "'i 'od")
+    test_assert("'I ’OD", "'i 'od")
     test_assert("BA'I", "ba'i")
     test_assert("AI", "i")
     test_assert("A'U", "U")
@@ -190,6 +192,7 @@ def testACIPtoEWTS():
     test_assert("AEE", "ai")
     test_assert("KEEm", "kaiM")
     test_assert("DRA", "dra")
+    test_assert("PAndI", "paN+Di")
     test_assert("BSGRUBS", "bsgrubs")
     test_assert("BSGRVUBS", "bsgrwubs")
     test_assert("KHAMS", "khams")
