@@ -7,7 +7,7 @@ orig = """dangs
 zhwa
 dwang
 rma
-tshe
+tshe&
 phywa
 dge
 rgya

@@ -228,7 +228,8 @@ class pyewts(object):
         "~X": "\u0f35",
         "H": "\u0f7f",
         "?": "\u0f84",
-        "^": "\u0f39"
+        "^": "\u0f39",
+        "&": "\u0f85"
     }
     #  final symbols organized by class
     m_final_class = {
@@ -239,7 +240,8 @@ class pyewts(object):
         "~X": "X",
         "H": "H",
         "?": "?",
-        "^": "^"
+        "^": "^",
+        "&": "&"
     }
     #  other stand-alone symbols
     m_other = {
@@ -270,6 +272,7 @@ class pyewts(object):
         "@": "\u0f04",
         "#": "\u0f05",
         "$": "\u0f06",
+        "%": "\u0f07",
         "%": "\u0f07"
     }
     #  special characters: flag those if they occur out of context
@@ -453,7 +456,8 @@ class pyewts(object):
         '\u0f35': "~X",
         '\u0f39': "^",
         '\u0f7f': "H",
-        '\u0f84': "?"
+        '\u0f84': "?",
+        '\u0f85': "&"
     }
     #  final symbols by class
     m_tib_final_class = {
@@ -464,7 +468,8 @@ class pyewts(object):
         '\u0f35': "X",
         '\u0f39': "^",
         '\u0f7f': "H",
-        '\u0f84': "?"
+        '\u0f84': "?",
+        '\u0f85': "&"
     }
     #  special characters introduced by ^
     m_tib_caret = {

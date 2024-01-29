@@ -4,6 +4,7 @@ import re
 # https://web.archive.org/web/20080828031427/http://www.asianclassics.org/download/tibetancode/ticode.pdf
 
 def ACIPtoEWTS(s):
+    s = s.strip(" \n")
     # Things have to be done in the right order:
     # @..., [...] => ignored (comments)
     s = re.sub(r"\[[^\]]*\]", "", s)
@@ -58,6 +59,65 @@ def ACIPtoEWTS(s):
     #   - : => H
     s = s.replace(":", "H")
     s = add_plus(s)
+    return s
+
+def EWTStoACIPContent(s):
+    # Things have to be done in the right order:
+    # remove square brackets (used in EWTS for non-Tibetan, no equivalent in ACIP?)
+    # but do not by default not to break ACIP comments
+    #s = s.replace("[", "")
+    #s = s.replace("]", "")
+    # normalize apostrophes
+    s = re.sub(r"[’ʼʹ‘ʾ]", "'", s)
+    #   - (...) => /.../ 
+    s = re.sub(r"\(([^/]*)\)", r"\/\1\/", s)
+    # simple substitutions
+    s = s.replace("|", ";")
+    s = re.sub(r"(^|\[)\*", lambda m: m.group(1), s) # remove * not after [
+    s = s.replace("@##", "ZZ")
+    s = s.replace("@#", "*")
+    # s = s.replace("@", "") # when not followed by #, we assume @ is the ACIP @
+    s = re.sub(r"(^|\[)#", lambda m: m.group(1), s) # remove # not after [
+    s = s.replace("ZZ", "#")
+    s = s.replace("?", "\\")
+    # the case will change
+    s = re.sub(r"\\U0F38", "^", s, flags=re.I)
+    s = s.replace("/", ",")
+    s = s.replace("!", "`")
+    s = s.replace("w", "v")
+    s = s.replace("tsh", "ZZZ")
+    s = s.replace("ts", "tz")
+    s = s.replace("ZZZ", "ts")
+    #   - % => ~x
+    s = s.replace("~X", "%")
+    #   - H => :
+    s = s.replace("H", ":")
+    #   + is ok in ACIP even if it's not recommended. It is mandatory in some cases
+    #   like d+m, n+y, t+s
+    #   - inverse case
+    s = s.swapcase()
+    # the i... case is swapped at this point
+    s = s.replace("-I", "w") # -> i (later)
+    s = s.replace("-i", "q") # -> 'i (later)
+    # . => -
+    s = s.replace(".", "-")
+    #   - ai => EE
+    #   - au => OO
+    s = s.replace("AI", "EE")
+    s = s.replace("AU", "OO")
+    # add A for ཨ
+    s = re.sub(r"(^|[^BCDGHJKLMNPR'STVYZhdtnEO])([AEOUIqaewiou])", lambda m: m.group(1)+"A"+m.group(2), s)
+    s = s.replace("a", "'A")
+    s = s.replace("u", "'U")
+    s = s.replace("o", "'O")
+    s = s.replace("e", "'E")
+    s = s.replace("i", "'I")
+    s = s.replace("q", "'i")
+    s = s.replace("w", "i")
+    #   - X => o
+    s = s.replace("x", "o")
+    #   - Sh => sh
+    s = s.replace("sH", "sh")
     return s
 
 # standard Tibetan roots (what's before the vowel), with an adjustment: all can take r, y or w or any combination at the end
@@ -166,8 +226,8 @@ def add_plus(src):
     return CONSONNANTS_PATTERN.sub(lambda x: add_plus_to_consonnants(x.group(1))+x.group(2), src)
 
 
-def test_assert(orig, expected):
-    res = ACIPtoEWTS(orig)
+def test_assert(orig, expected, aciptoewts=True):
+    res = ACIPtoEWTS(orig) if aciptoewts else EWTStoACIPContent(orig)
     if res != expected:
         print("error: %s => %s but %s expected" % (orig, res, expected))
 
@@ -200,7 +260,40 @@ def testACIPtoEWTS():
     test_assert("ARTHA", "ar+tha")
     test_assert("DHA KshA", "d+ha k+Sha")
     test_assert("TSA TZA", "tsha tsa")
+    # PH'O TH'O SHAN ZHES YUL GYI 'PHAGS PA SPYAN RAS GZIGS DAN , 
     test_assert("*, ,'PHAGS PA GSER 'OD DAM PA MDO SDE DBANG PO'I BSDUS PA BSHUGS SO, ,", "@#/ /'phags pa gser 'od dam pa mdo sde dbang po'i bsdus pa bshugs so/ /")
+
+def testEWTStoACIP():
+    test_assert("I", "A'I", False)
+    test_assert("\\u0f38", "^", False)
+    test_assert("-i", "Ai", False)
+    test_assert("-I", "A'i", False)
+    test_assert("bI", "B'I", False)
+    test_assert("'i ’od", "'I 'OD", False)
+    test_assert("ba'i", "BA'I", False)
+    test_assert("i", "AI", False)
+    test_assert("U", "A'U", False)
+    test_assert("aH", "AA:", False)
+    test_assert("AH", "A'A:", False)
+    test_assert("g.yas", "G-YAS", False)
+    test_assert("ga.yas", "GA-YAS", False)
+    test_assert("zhwa", "ZHVA", False)
+    test_assert("l-I", "L'i", False)
+    test_assert("ai", "AEE", False)
+    test_assert("kaiM", "KEEm", False)
+    test_assert("dra", "DRA", False)
+    test_assert("paN+Di", "PAn+dI", False)
+    test_assert("paN+Di t+sa", "PAn+dI T+SA", False)
+    test_assert("bsgrubs", "BSGRUBS", False)
+    test_assert("bsgrwubs", "BSGRVUBS", False)
+    test_assert("khams", "KHAMS", False)
+    test_assert("ar+tha", "AAR+THA", False)
+    test_assert("d+ha k+Sha", "D+HA K+shA", False)
+    test_assert("tsha tsa", "TSA TZA", False)
+    # PH'O TH'O SHAN ZHES YUL GYI 'PHAGS PA SPYAN RAS GZIGS DAN , 
+    test_assert("@#/ /'phags pa gser 'od dam pa mdo sde dbang po'i bsdus pa bshugs so/ /", "*, ,'PHAGS PA GSER 'OD DAM PA MDO SDE DBANG PO'I BSDUS PA BSHUGS SO, ,", False)
+
 
 if __name__ == "__main__":
     testACIPtoEWTS()
+    testEWTStoACIP()
