@@ -313,7 +313,7 @@ class pyewts(object):
     m_ambiguous_key = {
         "dgs": 1,
         "dms": 1,
-        "dngs": 1,
+        "dngs": 0,
         "'gs": 1,
         "'bs": 1,
         "mngs": 0,
@@ -323,7 +323,7 @@ class pyewts(object):
     }
     m_ambiguous_wylie = {
         "dgs": "dgas",
-        "dngs": "dngas",
+        "dngs": "dangs",
         "dms": "dmas",
         "'gs": "'gas",
         "'bs": "'bas",
