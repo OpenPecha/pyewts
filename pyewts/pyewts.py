@@ -884,7 +884,8 @@ class pyewts(object):
                     out += o
                     continue  # TODO: label ITER
             if t.startswith("\\"):
-                out += t[1]
+                if len(t) > 1:
+                    out += t[1]
                 i += 1
                 continue # TODO: label ITER
             if t == "\r\n" or t == "\n" or t == "\r":
