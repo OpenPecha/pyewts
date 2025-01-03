@@ -10,7 +10,8 @@ from pkg_resources import parse_version
 assert(parse_version(setuptools.__version__) >= parse_version("38.6.0"))
 
 def read(fname):
-    return open(os.path.join(os.path.dirname(__file__), fname)).read()
+    with open(os.path.join(os.path.dirname(__file__), fname), encoding="utf-8") as f:
+        return f.read()
 
 setuptools.setup(
     name="pyewts",
