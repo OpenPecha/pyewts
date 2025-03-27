@@ -4,7 +4,7 @@ import re
 # https://web.archive.org/web/20080828031427/http://www.asianclassics.org/download/tibetancode/ticode.pdf
 
 def ACIPtoEWTS(s):
-    s = s.strip(" \n")
+    #s = s.strip(" \n")
     # Things have to be done in the right order:
     # @..., [...] => ignored (comments)
     s = re.sub(r"\[[^\]]*\]", "", s)
@@ -18,7 +18,7 @@ def ACIPtoEWTS(s):
     # simple substitutions
     s = s.replace(";", "|")
     s = s.replace("#", "@##")
-    s = s.replace("*", "@#")
+    s = re.sub(r'\*+', lambda m: '@' + '#' * (len(m.group(0))-1), s)
     s = s.replace("\\", "?")
     # the case will change
     s = s.replace("^", "\\U0F38") # this is also sometimes encoded as 7
@@ -59,6 +59,14 @@ def ACIPtoEWTS(s):
     #   - : => H
     s = s.replace(":", "H")
     s = add_plus(s)
+    s = normalize_spaces(s)
+    return s
+
+def normalize_spaces(s):
+    """
+    in ACIP transliteration, space can mean tsheg or space, we make a guess in this function
+    """
+    s = re.sub(r"([aeiouIAEU]g|[gk][aeiouAEIU]) +([/|])", lambda m: m.group(1)+"_"+m.group(2), s)
     return s
 
 def EWTStoACIPContent(s):
