@@ -67,6 +67,7 @@ def normalize_spaces(s):
     in ACIP transliteration, space can mean tsheg or space, we make a guess in this function
     """
     s = re.sub(r"([aeiouIAEU]g|[gk][aeiouAEIU]) +([/|])", lambda m: m.group(1)+"_"+m.group(2), s)
+    s = s.replace("H ", "H_")
     return s
 
 def EWTStoACIPContent(s):
@@ -209,18 +210,46 @@ STD_TIB_STACKS_PREFIX = [
     "bsl"
 ]
 
-C_TOKEN_PATTERN = re.compile(r"zh|ny|dz|ts|tsh|ch|ph|th|sh|Sh|kh|ng|[NDTRYWbcdghjklmnprstwyz']")
 CONSONNANTS_PATTERN = re.compile(r"([bcdgjklm'nprstwyzhSDTN]+)([aeiouAEIOU.-])") # we only check the consonnants before a vowel
+
+def tokenize_consonnants(s):
+    # Define multi-character tokens
+    multi_char_tokens = ["zh", "ny", "dz", "ts", "tsh", "ch", "ph", "th", "sh", "Sh", "kh", "ng"]
+    # Sort by length (longest first) to ensure maximal matching
+    multi_char_tokens.sort(key=len, reverse=True)
+    
+    # Define all valid single characters
+    single_chars = "NDTRYWbcdghjklmnprstwyz'"
+    
+    result = []
+    i = 0
+    while i < len(s):
+        # Try to match multi-character tokens first
+        matched = False
+        for token in multi_char_tokens:
+            if s[i:].startswith(token):
+                result.append(token)
+                i += len(token)
+                matched = True
+                break
+        
+        # If no multi-character token matched, try to match a single character
+        if not matched:
+            if i < len(s) and s[i] in single_chars:
+                result.append(s[i])
+            i += 1
+    
+    return result
 
 STD_TIB_STACKS_PREFIX_TOKENS = []
 for s in STD_TIB_STACKS_PREFIX:
-    STD_TIB_STACKS_PREFIX_TOKENS.append(C_TOKEN_PATTERN.findall(s))
+    STD_TIB_STACKS_PREFIX_TOKENS.append(tokenize_consonnants(s))
 
 def add_plus_to_consonnants(c):
     if STD_TIB_PATTERN.fullmatch(c):
         return c
     # less common case, for Sanskrit, we have to add the +
-    c_tokens = C_TOKEN_PATTERN.findall(c)
+    c_tokens = tokenize_consonnants(c)
     # if we have a full match in STD_TIB_STACKS_PREFIX_TOKENS, we only add + after the first token
     # because we consider the first letter is a prefix
     if len(c_tokens) == 1:
@@ -268,8 +297,10 @@ def testACIPtoEWTS():
     test_assert("ARTHA", "ar+tha")
     test_assert("DHA KshA", "d+ha k+Sha")
     test_assert("TSA TZA", "tsha tsa")
+    test_assert("SV'A", "swA")
+    test_assert("TZTSA", "ts+tsha")
     # PH'O TH'O SHAN ZHES YUL GYI 'PHAGS PA SPYAN RAS GZIGS DAN , 
-    test_assert("*, ,'PHAGS PA GSER 'OD DAM PA MDO SDE DBANG PO'I BSDUS PA BSHUGS SO, ,", "@#/ /'phags pa gser 'od dam pa mdo sde dbang po'i bsdus pa bshugs so/ /")
+    test_assert("*, ,'PHAGS PA GSER 'OD DAM PA MDO SDE DBANG PO'I BSDUS PA BSHUGS SO, ,", "@/ /'phags pa gser 'od dam pa mdo sde dbang po'i bsdus pa bshugs so/ /")
 
 def testEWTStoACIP():
     test_assert("I", "A'I", False)
