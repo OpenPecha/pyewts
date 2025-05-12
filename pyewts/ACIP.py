@@ -30,7 +30,7 @@ def ACIPtoEWTS(s):
     s = s.replace("TZ", "TS") 
     # - => .
     # GA-YAS is not the canonical form but is commonly found
-    s = re.sub(r"([BCDGHJKLMN'PRSTVYZhdtn])A-", r"\1.", s)
+    s = re.sub(r"([BCDGHJKLMN'PRSTWYZhdtn])A-", r"\1.", s)
     s = s.replace("-", ".")
     #   - i => -I (we will reverse the case later)
     s = re.sub(r"A?i", "-I", s)
@@ -41,9 +41,9 @@ def ACIPtoEWTS(s):
     s = s.replace("o", "x")
     s = s.replace("%", "~x")
     #   - non-vowel + apostrophe + vowel (except i) => lower case vowel (idem)
-    s = re.sub(r"([BCDGHJKLMNPRSTVYZ'hdtn])'([AEOUI])", lambda m: m.group(1)+m.group(2).lower(), s)
+    s = re.sub(r"([BCDGHJKLMNPRSTWYZ'hdtn])'([AEOUI])", lambda m: m.group(1)+m.group(2).lower(), s)
     # this case is a bit complex, it's correcting the previous line for cases where A is the main letter
-    s = re.sub(r"(^|[^BCDGHJKLMNPR'STVYZhdtn])A'([AEOUI])", lambda m: m.group(1)+m.group(2).lower(), s)
+    s = re.sub(r"(^|[^BCDGHJKLMNPR'STWYZhdtn])A'([AEOUI])", lambda m: m.group(1)+m.group(2).lower(), s)
     #   - A + vowel => vowel
     s = re.sub(r"A([AEIOUaeiou])", r"\1", s)
     #   - sh => sH
