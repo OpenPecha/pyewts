@@ -18,7 +18,7 @@ def ACIPtoEWTS(s):
     # simple substitutions
     s = s.replace(";", "|")
     s = s.replace("#", "@##")
-    s = re.sub(r'\*+', lambda m: '@' + '#' * (len(m.group(0))-1), s)
+    s = re.sub(r'\*+', lambda m: '@' + '#' * (len(m.group(0))), s)
     s = s.replace("\\", "?")
     # the case will change
     s = s.replace("^", "\\U0F38") # this is also sometimes encoded as 7
