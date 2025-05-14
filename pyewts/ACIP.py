@@ -66,8 +66,8 @@ def normalize_spaces(s):
     """
     in ACIP transliteration, space can mean tsheg or space, we make a guess in this function
     """
-    s = re.sub(r"([aeiouIAEU]g|[gk][aeiouAEIU]) +([/|])", lambda m: m.group(1)+"_"+m.group(2), s)
-    s = s.replace("H ", "H_")
+    s = re.sub(r"([aeiouIAEU]g|[gk][aeiouAEIU]|[;!/|]) +([;!/|])", lambda m: m.group(1)+"_"+m.group(2), s)
+    s = re.sub(r"([;!/|HX]) +", lambda m: m.group(1)+"_", s)
     return s
 
 def EWTStoACIPContent(s):
