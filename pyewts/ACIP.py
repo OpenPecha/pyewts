@@ -85,6 +85,7 @@ def EWTStoACIPContent(s):
     s = re.sub(r"(^|\[)\*", lambda m: m.group(1), s) # remove * not after [
     s = s.replace("@##", "ZZ")
     s = s.replace("@#", "*")
+    s = s.replace("_", " ") # no space in ACIP
     # s = s.replace("@", "") # when not followed by #, we assume @ is the ACIP @
     s = re.sub(r"(^|\[)#", lambda m: m.group(1), s) # remove # not after [
     s = s.replace("ZZ", "#")
@@ -300,7 +301,7 @@ def testACIPtoEWTS():
     test_assert("SV'A", "swA")
     test_assert("TZTSA", "ts+tsha")
     # PH'O TH'O SHAN ZHES YUL GYI 'PHAGS PA SPYAN RAS GZIGS DAN , 
-    test_assert("*, ,'PHAGS PA GSER 'OD DAM PA MDO SDE DBANG PO'I BSDUS PA BSHUGS SO, ,", "@/ /'phags pa gser 'od dam pa mdo sde dbang po'i bsdus pa bshugs so/ /")
+    test_assert("*, ,'PHAGS PA GSER 'OD DAM PA MDO SDE DBANG PO'I BSDUS PA BSHUGS SO, ,", "@#/_/'phags pa gser 'od dam pa mdo sde dbang po'i bsdus pa bshugs so/_/")
 
 def testEWTStoACIP():
     test_assert("I", "A'I", False)
@@ -330,7 +331,7 @@ def testEWTStoACIP():
     test_assert("d+ha k+Sha", "D+HA K+shA", False)
     test_assert("tsha tsa", "TSA TZA", False)
     # PH'O TH'O SHAN ZHES YUL GYI 'PHAGS PA SPYAN RAS GZIGS DAN , 
-    test_assert("@#/ /'phags pa gser 'od dam pa mdo sde dbang po'i bsdus pa bshugs so/ /", "*, ,'PHAGS PA GSER 'OD DAM PA MDO SDE DBANG PO'I BSDUS PA BSHUGS SO, ,", False)
+    test_assert("@#/ /'phags pa gser 'od dam pa mdo sde dbang po'i bsdus pa bshugs so/_/", "*, ,'PHAGS PA GSER 'OD DAM PA MDO SDE DBANG PO'I BSDUS PA BSHUGS SO, ,", False)
 
 
 if __name__ == "__main__":
