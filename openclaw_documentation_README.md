@@ -1,37 +1,14 @@
-<h1 align="center">
-  <br>
-  <a href="https://buddhistai.tools/"><img src="https://raw.githubusercontent.com/WeBuddhist/visual-assets/refs/heads/main/logo/WB-logo-purple.png" alt="OpenPecha" width="150"></a>
-  <br>
-</h1>
-
-<h1 align="center">pyewts</h1>
-
-<p align="center">
-  |Python| |MIT|
-</p>
+# pyewts
 
 Tibetan Unicode to Wylie converter (EWTS-Extended Wylie Transliteration Scheme)
 
-## Table of Contents
+## Language
 
-- [Features](#features)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Development](#contributing)
-- [How to get help](#how-to-get-help)
-- [Terms of use](#terms-of-use)
+Python
 
-## Features
+## Description
 
-- Convert Tibetan Unicode to Wylie transliteration
-- Support for Extended Wylie Transliteration Scheme (EWTS)
-- Bidirectional conversion (Unicode ↔ Wylie)
-- Python library with simple API
-
-## Prerequisites
-
-- Python 3.7+
+The goal of this code is to provide a library to convert back and forth between Tibetan Unicode and [EWTS](http://www.thlib.org/reference/transliteration/#!essay=/thl/ewts/). The code is adapted from Java ewts-converter. It also provides a conversion from the ACIP Transliteration to EWTS.
 
 ## Installation
 
@@ -39,33 +16,27 @@ Tibetan Unicode to Wylie converter (EWTS-Extended Wylie Transliteration Scheme)
 pip install pyewts
 ```
 
-Or from source:
-
-```bash
-git clone https://github.com/OpenPecha/pyewts.git
-cd pyewts
-pip install -e .
-```
-
 ## Usage
 
 ```python
 import pyewts
+converter = pyewts.pyewts()
+print(converter.toUnicode("ba b+ba [a] ba\u0f0b"))
+# བ་བྦ་a་བ་
 
-converter = pyewts.Pyewts()
-
-# Unicode to Wylie
-wylie = converter.toWylie("བོད་ཡིག")
-print(wylie)  # bod.yig
-
-# Wylie to Unicode
-unicode_text = converter.toUnicode("bod.yig")
-print(unicode_text)  # བོད་ཡིག
+print(converter.toWylie("༼༽"))
+# ()
 ```
 
+## License
+
+MIT License
+
 ## How to get help
-* File an issue.
-* Join our [discord](https://discord.com/invite/7GFpPFSTeA).
+
+- Open an issue at https://github.com/OpenPecha/pyewts/issues
+- Check existing issues for solutions
 
 ## Terms of use
-pyewts is licensed under the [MIT License](/LICENSE).
+
+This project is part of OpenPecha. See https://openpecha.org for terms of use.
