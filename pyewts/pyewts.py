@@ -840,7 +840,7 @@ class pyewts(object):
                             out += o
                             continue
                     if t.startswith("\\"):
-                        o = t[1]
+                        o = t[1] if len(t) > 1 else ""
                     else:
                         o = t
                     out += o
